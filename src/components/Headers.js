@@ -9,6 +9,7 @@ const Styles = styled.div`
     .secondary-font {
         font-family: 'Montserrat', sans-serif;
     }
+
     .primary-large-font {
         font-size: 64px;
     }
@@ -18,6 +19,7 @@ const Styles = styled.div`
     .primary-small-font {
         font-size: 18px;
     }
+
     .secondary-large-font {
         font-size: 20px;
     }
@@ -31,36 +33,36 @@ const Styles = styled.div`
 
 export const PrimaryHeaderLarge = (props) => (
     <Styles color={props.color}>
-        <h1 className="primary-font primary-large-font">{props.title}</h1>
+        <div className="primary-font primary-large-font">{props.title}</div>
     </Styles>
 )
 
 export const PrimaryHeaderMedium = (props) => (
     <Styles color={props.color}>
-        <h1 className="primary-font primary-medium-font">{props.title}</h1>
+        <div className="primary-font primary-medium-font">{props.title}</div>
     </Styles>
 )
 
 export const PrimaryHeaderSmall = (props) => (
     <Styles color={props.color}>
-        <h1 className="primary-font primary-small-font">{props.title}</h1>
+        <div className="primary-font primary-small-font">{props.title}</div>
     </Styles>
 )
 
-export const SecondaryHeaderLarge = (props) => (
+export const TextLarge = (props) => (
     <Styles color={props.color}>
-        <h1 className="secondary-font secondary-large-font">{props.title}</h1>
+        <div className="secondary-font secondary-large-font">{props.title}</div>
     </Styles>
 )
 
-export const SecondaryHeaderMedium = (props) => (
+export const TextMedium = (props) => (
     <Styles color={props.color}>
-        <h1 className="secondary-font secondary-medium-font">{props.title}</h1>
+        <div className="secondary-font secondary-medium-font">{props.title}</div>
     </Styles>
 )
 
-export const SecondaryHeaderSmall = (props) => (
+export const TextSmall = (props) => (
     <Styles color={props.color}>
-        <h1 className="secondary-font secondary-small-font">{props.title}</h1>
+        <div className="secondary-font secondary-small-font">{props.title}</div>
     </Styles>
 )

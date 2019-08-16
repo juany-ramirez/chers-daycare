@@ -1,3 +1,6 @@
 export * from './Headers'
 export * from './Layout'
 export * from './NavigationBar'
+export * from './NewPost'
+export * from './Post'
+export * from './Footer'

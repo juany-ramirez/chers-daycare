@@ -1,6 +1,7 @@
 import React from 'react';
 import { Nav, Navbar } from 'react-bootstrap'
 import styled from 'styled-components'
+import '../index.scss';
 
 const Styles = styled.div`
     .navbar{
@@ -27,6 +28,7 @@ const Styles = styled.div`
         font-size: 18px;
         color: #F2B441;
         &:hover {
+            color: #F23C3C;
             font-weight: bold;
         }
     }
