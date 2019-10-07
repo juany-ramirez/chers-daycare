@@ -93,10 +93,13 @@ const Styles = styled.div`
     img {
         margin-bottom: 5vh;
     }
+    .daycare-center {
+        margin: auto;
+    }
 `
 export const Post = (props) => (
     <Styles>
-        <Card className="text-center">
+        <Card className="daycare-center">
             <Card.Header>
                 <Row>
                     <Col lg={11} xs={10}>
@@ -135,7 +138,7 @@ export const Post = (props) => (
                         <TextSmall title='5h' color='#6c757d'/>
                     </Col>
                     <Col xs={8}>
-                        <TextSmall title='Cras purus odio, vestibulum in vulputate at, tempus viverra turpis.' color='#6c757d'/>
+                        <TextSmall title='Cras purus amor, vestibulum in vulputate at, tempus viverra turpis.' color='#6c757d'/>
                     </Col>
                 </Row>
                 <Row>

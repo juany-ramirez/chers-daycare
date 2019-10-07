@@ -1,0 +1,30 @@
+.styles-navigation-bar {
+    .navbar {
+        background-color: #4A4972;
+        svg {
+            height: auto;
+            width:100vw;
+            position: absolute;
+            top:54px;
+            left:0px;
+            .shadow {
+                -webkit-filter: drop-shadow( 0 10px 10px -5px rgba(0, 0, 0, .7));
+                filter: drop-shadow( 0 10px 10px -5px rgba(0, 0, 0, .7));
+            }
+        }
+    }
+    @media (max-width: 768px) { 
+        .show {
+            padding-top: 10px;
+        }
+    }
+    .navbar-brand, .nav-item .nav-link{        
+        font-family: 'Montserrat', sans-serif;
+        font-size: 18px;
+        color: #F2B441;
+        &:hover {
+            color: #F23C3C;
+            font-weight: bold;
+        }
+    }
+}

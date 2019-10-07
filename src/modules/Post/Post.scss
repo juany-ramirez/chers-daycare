@@ -2,11 +2,17 @@
     color: #4A4972;
     font-family: 'Montserrat', sans-serif;
     font-size: 18px;
+    margin-bottom: 50px;
     .card {
         border: 5px solid #4A4972;
         background-color: #D5E4F2;
         border-radius: 25px;
         max-width: 800px;
+    }
+    .centered-post {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
     .card-header {
         border-bottom: 1px solid #4A4972;
@@ -74,7 +80,7 @@
         border: none;
     }
     .daycare-like-segment {
-        color: #F23C3C;
+        fill: white;
         svg {
             fill: currentColor;
             margin-left: 20px;
@@ -84,8 +90,16 @@
                 margin-right: 10px;
             }
         }
+        
     }
+    .daycare-like-segment.liked svg{
+        fill: #F23C3C;
+    }
+    
     img {
         margin-bottom: 5vh;
+    }
+    .daycare-center {
+        margin: auto;
     }
 }
