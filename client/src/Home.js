@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import axios from "axios";
 import { Spinner } from "react-bootstrap";
 import NewPost from "./modules/NewPost/NewPost.js";
 import Post from "./modules/Post/Post.js";
@@ -15,27 +16,25 @@ class Home extends Component {
 
   componentDidMount() {
     this.getPosts();
+    console.log("env", process.env.REACT_APP_NODE_API);
   }
 
   getPosts() {
-    fetch("/api/posts")
-      .then(res => res.json())
-      .then(posts => {
-        console.log(posts);
-        posts.data.sort((a,b) => {
-            return new Date(b.release_date) - new Date(a.release_date);
+    axios.get(`${process.env.REACT_APP_NODE_API}/api/posts`)
+      .then(response => {
+        console.log(response.data);
+        response.data.data.sort((a, b) => {
+          return new Date(b.release_date) - new Date(a.release_date);
         });
-        this.setState({ loading: false, posts: posts.data });
-        console.log(this.state.posts);
+        this.setState({ loading: false, posts: response.data.data });
       })
       .catch(err => {
         console.log(err);
       });
-      
   }
 
-  handlePost() {
-    this.getPosts();
+  handlePost(newPost) {
+    this.state.posts.push(newPost);
   }
 
   render() {
@@ -50,7 +49,7 @@ class Home extends Component {
     }
     return (
       <div className="daycare-home-page">
-        <NewPost handlePost={()=>{this.handlePost()}}></NewPost>
+        <NewPost handlePost={(post) => { this.handlePost(post) }}></NewPost>
         <div className="post-container">
           {this.state.posts.map((post, index) => (
             <Post post={post} key={index} />

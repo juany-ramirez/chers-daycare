@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import axios from "axios";
 import {
   Card,
   Media,
@@ -37,19 +38,12 @@ class Post extends Component {
   }
 
   likeAction() {
-    const url = 'http://localhost:4000';
     const numberLikes = this.state.toggleLike ? this.state.likes+1 : this.state.likes-1;
     this.setState({ toggleLike: !this.state.toggleLike, likes: numberLikes });
     const data = {
       _id: '5d5ee533acc36e3efc84a65c'//******************* CAMBIAR A ID DEL USUARIO ACTIVO
     }
-    fetch(`${url}/api/posts/like/${this.props.post._id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data), 
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    }).then(res => res.json())
+    axios.put(`${process.env.REACT_APP_NODE_API}/api/posts/like/${this.props.post._id}`, data)
     .then(response => console.log('Success:', JSON.stringify(response)))
     .catch(error => console.error('Error:', error));
   }
@@ -114,7 +108,7 @@ class Post extends Component {
           </Card.Header>
           <Card.Body>
             <Image
-              src={require("../../assets/40674424_1088390404662326_1735908996587454464_n.jpg")}
+              src={this.props.post.image.link}
               fluid
             />
             <Media>
@@ -124,8 +118,8 @@ class Post extends Component {
                 }}
                 className={
                   this.state.toggleLike
-                    ? `daycare-like-segment`
-                    : `daycare-like-segment liked`
+                    ? `daycare-like-segment text-center`
+                    : `daycare-like-segment text-center liked`
                 }
               >
                 <TextSmall title={`Likes: ${this.state.likes}`} />
@@ -140,7 +134,7 @@ class Post extends Component {
                 </svg>
               </div>
               <Media.Body>
-                <p>
+                <p className="d-flex justify-content-center">
                   <br />
                   {this.props.post.caption}
                 </p>
@@ -148,7 +142,7 @@ class Post extends Component {
             </Media>
             <hr></hr>
             <Row>
-              <Col xs={4}>
+              <Col xs={4} className="text-center">
                 <b>
                   <TextSmall title="Maria Rodriguez" color="#6c757d" />
                 </b>

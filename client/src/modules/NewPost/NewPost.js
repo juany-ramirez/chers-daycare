@@ -1,6 +1,8 @@
 import React, { Component } from "react";
+import axios from "axios";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { PrimaryHeaderMedium } from "../../components/Headers";
+import { storage } from '../../firebase';
 import "./NewPost.scss";
 
 class NewPost extends Component {
@@ -8,7 +10,7 @@ class NewPost extends Component {
     super(props);
     this.state = {
       value: "",
-      files: []
+      file: {}
     };
     this.handleChanges = this.handleChanges.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -16,7 +18,7 @@ class NewPost extends Component {
   }
 
   handleChanges(selectorFiles: FileList) {
-    this.setState({ files: selectorFiles });
+    this.setState({ file: selectorFiles[0] });
   }
 
   handleChange(event) {
@@ -25,26 +27,46 @@ class NewPost extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    this.postPost();
+    this.managePostType();
   }
 
-  postPost() {
-    const url = "http://localhost:4000";
-    const data = {
-      caption: this.state.value
-    };
-    fetch(`${url}/api/posts`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-      .then(res => res.json())
-      .then(response => console.log("Success:", JSON.stringify(response)))
+  managePostType() {
+    if (this.state.file) {
+      const data = {
+        caption: this.state.value
+      };
+      this.postPost(data);
+    } else {
+      const uploadTask = storage.ref(`images/${this.state.file.name}`);
+      let task = uploadTask.put(this.state.file);
+      task.on('state_changed', () => { },
+        (error) => {
+          console.log(error);
+        },
+        () => {
+          storage.ref('images').child(this.state.file.name).getDownloadURL().then((firebaseUrl) => {
+            console.log(firebaseUrl);
+            const data = {
+              caption: this.state.value,
+              image: {
+                link: firebaseUrl
+              },
+            };
+            this.postPost(data);
+          })
+        });
+
+    }
+  }
+
+  postPost(data) {
+    axios.post(`${process.env.REACT_APP_NODE_API}/api/posts`, data)
+      .then(response => {
+        console.log("Success:", JSON.stringify(response))
+        this.props.handlePost(response);
+      })
       .catch(error => console.error("Error:", error));
-    this.setState({ files: {}, value:'' });
-    this.props.handlePost();
+    this.setState({ file: {}, value: '' });
   }
 
   render() {
@@ -74,8 +96,8 @@ class NewPost extends Component {
                     onChange={e => this.handleChanges(e.target.files)}
                   />
                   <label className="custom-file-label" htmlFor="customFileLang">
-                    {this.state.files.length !== 0 && <div>{this.state.files[0].name}</div>}
-                    {this.state.files.length === 0 && <div>Seleccionar Archivo</div>}
+                    {this.state.file.length !== 0 && <div>{this.state.file.name}</div>}
+                    {this.state.file.length === 0 && <div>Seleccionar Archivo</div>}
                   </label>
                 </div>
               </Col>
