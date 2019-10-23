@@ -21,12 +21,59 @@ const KidsSchema = mongoose.Schema({
         default: [],
         required: true
     },
-    payment: {
-        type: Number,
-        default: 0,
-        min: 0,
-        required: true
-    },
+    monthly_payment: [{
+        first_date: {
+            type: Date,
+            default: '',
+            required: false
+        },
+        second_date: {
+            type: Date,
+            default: '',
+            required: false
+        },
+        payment: {
+            type: Number,
+            default: 0,
+            min: 0,
+            required: false
+        },
+        payed: {
+            type: Number,
+            default: 0,
+            min: 0,
+            required: false
+        },
+        done: {
+            type: Boolean,
+            default: false,
+            required: false
+        }
+    }],
+    singular_payment: [{
+        first_date: {
+            type: Date,
+            default: '',
+            required: false
+        },
+        payment: {
+            type: Number,
+            default: 0,
+            min: 0,
+            required: false
+        },
+        payed: {
+            type: Number,
+            default: 0,
+            min: 0,
+            required: false
+        },
+        done: {
+            type: Boolean,
+            default: false,
+            required: false
+        }
+    }],
     parent: {
         type: mongoose.Schema.Types.ObjectId,
         required: true

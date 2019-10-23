@@ -22,7 +22,8 @@ module.exports = {
             last_names: req.body.last_names,
             profiles: req.body.profiles,
             tags: req.body.tags,
-            payment: req.body.payment,
+            monthly_payment: req.body.monthly_payment,
+            singular_payment: req.body.singular_payment,
             parent: req.body.parent
         });
         kid.save().then((kid) => {
@@ -69,7 +70,8 @@ module.exports = {
                     last_names: req.body.last_names,
                     profiles: req.body.profiles,
                     tags: req.body.tags,
-                    payment: req.body.payment,
+                    monthly_payment: req.body.monthly_payment,
+                    singular_payment: req.body.singular_payment,
                     parent: req.body.parent
                 }
             }).then((kid) => {

@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import { PrimaryHeaderMedium } from "../../components/Headers";
-import { storage } from '../../firebase';
+import { PrimaryHeaderMedium } from "../../../components/Headers";
+import { storage } from '../../../firebase';
 import "./NewPost.scss";
 
 class NewPost extends Component {

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon app.js",
     "client-dev": "npm start --prefix client",
-    "serve": "concurrenty \"npm start\" \"npm start --prefix client\""
+    "dev": "concurrently \"npm start\" \"npm start --prefix client\""
   },
   "keywords": [],
   "author": "",
@@ -24,7 +24,8 @@
     "mongoose": "^5.6.10",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "yup": "^0.27.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"

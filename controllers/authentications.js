@@ -7,17 +7,23 @@ const Parent = require('../models/Parent');
 const { JWT_SECRET } = require('../configuration');
 const bcrypt = require('bcryptjs');
 
-newRol = (rol, user_id) => {
+newRol = async (rol, user_id) => {
     let rol_user;
     if (rol === 1) {
         rol_user = new Administrator({ user_id });
-        return rol_user.save();
+        rol_user.save().then(rol => {
+            return rol;
+        })
     } else if (rol === 2) {
         rol_user = new Caretaker({ user_id });
-        return rol_user.save();
+        rol_user.save().then(rol => {
+            return rol;
+        })
     } else if (rol === 3) {
         rol_user = new Parent({ user_id });
-        return rol_user.save();
+        rol_user.save().then(rol => {
+            return rol;
+        })
     }
     return rol_user;
 }
@@ -39,13 +45,14 @@ signToken = (user) => {
 updateUser = (req, res, next) => {
     User.findById(req.params.id, function(err, user) {
         if (err) return res.status(422).send({ success: false, error: err });
-        user.names = req.body.names,
-        user.last_names = req.body.last_names,
-        user.email = req.body.email,
-        user.password = req.body.password,
-        user.third_party_notification = req.body.third_party_notification,
-        user.notifications = req.body.notifications,
-        user.rol = req.body.rol
+        user.names = req.body.names;
+        user.last_names = req.body.last_names;
+        user.email = req.body.email;
+        user.password = req.body.password;
+        user.phone = req.body.phone;
+        user.third_party_notification = req.body.third_party_notification;
+        user.notifications = req.body.notifications;
+        user.rol = req.body.rol;
         user.save().then((user) => {
             const token = signToken(user);
             res.send({ success: true, data: token });
@@ -75,12 +82,15 @@ module.exports = {
             last_names: req.body.last_names,
             email: req.body.email,
             password: req.body.password,
+            phone: req.body.phone,
             third_party_notification: req.body.third_party_notification,
             notifications: req.body.notifications,
             rol: req.body.rol
         });
-        let rol_type = newRol(req.body.rol, user.id);
+        let rol_type = await newRol(req.body.rol, user._id);
+
         user.user_type = rol_type._id;
+        
         user.save().then((user) => {
             const token = signToken(user);
             res.send({ success: true, data: token });

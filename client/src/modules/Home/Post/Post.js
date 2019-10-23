@@ -12,7 +12,7 @@ import {
   Row,
   Image
 } from "react-bootstrap";
-import { PrimaryHeaderSmall, TextSmall } from "../../components";
+import { PrimaryHeaderSmall, TextSmall } from "../../../components";
 import "./Post.scss";
 
 class Post extends Component {

@@ -73,3 +73,29 @@ $Chers-DayCare-5-hsla: hsla(49, 85, 65, 1);
 body {
     overflow-x: hidden;
 }
+
+.post-container {
+    margin-top: 250px;
+}
+
+.configuration-styles {
+    .nav {
+        
+        font-size: 20px;
+    }
+}
+.btn-group {
+    &.large-bar {
+        width: 100%;
+    }
+    .btn {
+        font-size: 20px;
+        color: white;
+        background-color: #F2B441;
+        border: none;
+        &.active, &:focus, &:active {
+            color: white !important;
+            background-color: rgb(155, 118, 49);
+        }
+    }
+}
