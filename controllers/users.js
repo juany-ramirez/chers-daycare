@@ -15,7 +15,7 @@ deleteUser = (req, res, rolUser) => {
 
 module.exports = {
     getUsers: async (req, res, next) => {
-        User.find().then((users) => {
+        User.find(req.query).then((users) => {
             res.send({ success: true, data: users });
         }).catch((err) =>
             res.status(422).send({ success: false, error: err.message })

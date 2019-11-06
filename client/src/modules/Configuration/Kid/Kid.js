@@ -3,7 +3,7 @@ import axios from "axios";
 import DModal from "../../../components/Modals";
 import KidModal from "./KidModal";
 import { PrimaryHeaderLarge, DButton } from "../../../components";
-import { Table, Spinner, Row, Modal } from "react-bootstrap";
+import { Table, Spinner, Row, Modal, Button } from "react-bootstrap";
 
 const Kid = props => {
     const [state, setState] = useState({
@@ -82,6 +82,8 @@ const Kid = props => {
                 title="Crear nuevo usuario"
                 kid={emptyKid}
             /> */}
+            <Button variant="warning" >Agregar Niño</Button>
+            <br />
             <br />
             <Table striped bordered variant="light" hover>
                 <thead>

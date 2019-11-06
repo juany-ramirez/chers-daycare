@@ -22,7 +22,8 @@ router.post('/', (req, res) => {
     const parent = new Parent({
         user_id: req.body.user_id,
         kids: req.body.kids,
-        notifications: req.body.notifications
+        notifications: req.body.notifications,
+        payments: req.body.payments
     });
     parent.save().then((parent) => {
         res.send({success:true, data:parent});
@@ -45,7 +46,8 @@ router.put('/:id', (req, res) => {
             {
                 user_id: req.body.user_id,
                 kids: req.body.kids,
-                notifications: req.body.notifications
+                notifications: req.body.notifications,
+                payments: req.body.payments
             }
     }).then((parent) => {
         res.send({success:true, data:parent});

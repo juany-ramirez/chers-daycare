@@ -3,6 +3,7 @@ import axios from "axios";
 import { Spinner } from "react-bootstrap";
 import NewPost from "./NewPost/NewPost";
 import Post from "./Post/Post";
+import Auth from '../../auth';
 
 const Home = props => {
 
@@ -13,6 +14,8 @@ const Home = props => {
 
   useEffect(() => {
     getPosts();
+    
+    console.log(Auth.decodeJWT());
     // eslint-disable-next-line
   }, []);
 

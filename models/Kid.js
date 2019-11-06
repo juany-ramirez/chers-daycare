@@ -63,9 +63,8 @@ const KidsSchema = mongoose.Schema({
             required: false
         },
         payed: {
-            type: Number,
-            default: 0,
-            min: 0,
+            type: [mongoose.Schema.Types.ObjectId],
+            default: [],
             required: false
         },
         done: {

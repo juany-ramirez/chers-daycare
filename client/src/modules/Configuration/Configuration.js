@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 import { Nav, Navbar, Row, Col, ToggleButtonGroup, ToggleButton } from "react-bootstrap";
 import User from "./User/User";
 import Kid from "./Kid/Kid";
+import Payment from "./Payment/Payment";
 
 const Configuration = props => {
 
@@ -35,7 +36,7 @@ const Configuration = props => {
         <Switch>
           <Route exact path="/configuration/user" component={User} />
           <Route exact path="/configuration/kid" component={Kid} />
-          {/* <Route path="/payment" component={Payment}/> */}
+          <Route exact path="/configuration/payment" component={Payment}/>
         </Switch>
       </Router>
     </div>

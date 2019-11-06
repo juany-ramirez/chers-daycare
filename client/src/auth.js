@@ -1,45 +1,48 @@
 import axios from "axios";
+let jwtDecode = require('jwt-decode');
 
 class Auth {
     constructor() {
-        this.authenticated = false;
-        this.jwt = "";
-        this.user = {};
     }
 
     login(jwt) {
-        this.authenticated = true;
-        this.jwt = jwt;
-        localStorage.setItem('jwt', this.jwt);
-        this.setAuthTokenAPI(this.jwt);
+        localStorage.setItem('jwt', jwt);
+        this.setAuthTokenAPI(jwt);
     }
 
     setAuthTokenAPI(jwt) {
-        if (jwt){            
-            axios.defaults.headers.common['Authorization'] = jwt;
-        } else {            
-            delete axios.defaults.headers.common['Authorization'];
-        }
+        console.log('setAuthTokenAPI', jwt);
+        axios.interceptors.request.use(function (config) {
+            if (jwt) {
+                config.headers.Authorization = jwt;
+            } else {
+                config.headers.Authorization = null;
+            }
+            return config;
+        });
+
     }
 
-    logout(jwt) {
-        this.authenticated = false;
-        this.jwt = "";
+    logout(cb) {
         localStorage.removeItem('jwt');
-        this.setAuthTokenAPI();
+        this.setAuthTokenAPI(null);
+        cb();
     }
 
     isAuthenticated() {
-        return this.authenticated;
+        let jwt = this.getJWT();
+        console.log('isAuthenticated', jwt);
+        return jwt ? true : false;
     }
 
     getJWT() {
-        return this.jwt;
+        return localStorage.getItem('jwt');
     }
 
-    getSession() {
-        return localStorage.getItem('jwt');
+    decodeJWT() {
+        let jwt = this.getJWT();
+        return jwt ? jwtDecode(jwt) : false;
     }
 }
 
-export default new Auth()
+export default new Auth();

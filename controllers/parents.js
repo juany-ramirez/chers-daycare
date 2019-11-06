@@ -19,7 +19,8 @@ module.exports = {
         const parent = new Parent({
             user_id: req.body.user_id,
             kids: req.body.kids,
-            notifications: req.body.notifications
+            notifications: req.body.notifications,
+            payments: req.body.payments
         });
         parent.save().then((parent) => {
             res.send({ success: true, data: parent });
@@ -41,7 +42,8 @@ module.exports = {
                 {
                     user_id: req.body.user_id,
                     kids: req.body.kids,
-                    notifications: req.body.notifications
+                    notifications: req.body.notifications,
+                    payments: req.body.payments
                 }
             }).then((parent) => {
                 res.send({ success: true, data: parent });

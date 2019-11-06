@@ -25,12 +25,7 @@ const User = props => {
     };
 
     const deleteUser = (id) => {
-        axios.delete(`${process.env.REACT_APP_NODE_API}/api/users/${id}`
-            , {
-                headers: {
-                    'Authorization': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZDVlZTUzM2FjYzM2ZTNlZmM4NGE2NWMiLCJleHAiOjE1NzE4NzMzMTgxNTcsIm5hbWVzIjoiQ2hlcidzIERheWNhcmUiLCJsYXN0X25hbWVzIjpudWxsLCJlbWFpbCI6ImNoZXJzZGF5Y2FyZS5sZWFybmluZ2NlbnRlckBnbWFpbC5jb20iLCJ0aGlyZF9wYXJ0eV9ub3RpZmljYXRpb24iOm51bGwsIm5vdGlmaWNhdGlvbnMiOltdLCJyb2wiOjEsImlhdCI6MTU3MTc4NjkxOH0.rvfM4GELHQPCu9wRBplglRWXd8CPfC7_DObom1q73d8"
-                }
-            })
+        axios.delete(`${process.env.REACT_APP_NODE_API}/api/users/${id}`)
             .then(response => {
                 if (response.data.success) {
                     setMessage("Se ha eliminado el Usuario");
@@ -55,12 +50,7 @@ const User = props => {
     }
 
     const getUsers = () => {
-        axios.get(`${process.env.REACT_APP_NODE_API}/api/users`
-            , {
-                headers: {
-                    'Authorization': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZDVlZTUzM2FjYzM2ZTNlZmM4NGE2NWMiLCJleHAiOjE1NzE4NzMzMTgxNTcsIm5hbWVzIjoiQ2hlcidzIERheWNhcmUiLCJsYXN0X25hbWVzIjpudWxsLCJlbWFpbCI6ImNoZXJzZGF5Y2FyZS5sZWFybmluZ2NlbnRlckBnbWFpbC5jb20iLCJ0aGlyZF9wYXJ0eV9ub3RpZmljYXRpb24iOm51bGwsIm5vdGlmaWNhdGlvbnMiOltdLCJyb2wiOjEsImlhdCI6MTU3MTc4NjkxOH0.rvfM4GELHQPCu9wRBplglRWXd8CPfC7_DObom1q73d8"
-                }
-            })
+        axios.get(`${process.env.REACT_APP_NODE_API}/api/users`)
             .then(response => {
                 console.log(response.data);
                 setState({ ...state, loading: false, users: response.data.data });

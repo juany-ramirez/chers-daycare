@@ -27,7 +27,7 @@ const ParentSchema = mongoose.Schema({
             min: 1,
             required: false
         },
-        id: {
+        kidPayment: {
             type: mongoose.Schema.Types.ObjectId,
             default: null,
             required: false

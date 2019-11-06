@@ -28,8 +28,11 @@ const Login = props => {
             .then(response => {
                 console.log("Success:", response.data);
                 Auth.login(response.data.token);
+                console.log(Auth.decodeJWT());
                 resetForm();
                 setValidation("");
+                props.history.push("/home");
+                
             })
             .catch(error => {
                 setValidation("Email o contraseña incorrecta");
