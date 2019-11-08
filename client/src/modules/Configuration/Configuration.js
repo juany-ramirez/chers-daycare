@@ -4,6 +4,7 @@ import { Nav, Navbar, Row, Col, ToggleButtonGroup, ToggleButton } from "react-bo
 import User from "./User/User";
 import Kid from "./Kid/Kid";
 import Payment from "./Payment/Payment";
+import './Configuration.scss'
 
 const Configuration = props => {
 
@@ -20,23 +21,29 @@ const Configuration = props => {
   let content = (
     <div className="configuration-styles text-center">
       <Router>
-        <Navbar bg="warning" variant="dark">
-          <Nav className="mr-auto">
-            <Nav.Link href="/configuration/user">
-              <h4 style={{color:"black"}}>Usuarios</h4>
-            </Nav.Link>
-            <Nav.Link href="/configuration/kid">
-              <h4 style={{color:"black"}}>Niños</h4>
-            </Nav.Link>
-            <Nav.Link href="/configuration/payment">
-              <h4 style={{color:"black"}}>Pagos</h4>
-            </Nav.Link>
-          </Nav>
-        </Navbar>
+        <div className="nav-options" >
+          <Row className="mr-auto">
+            <Col>
+              <a href="/configuration/user">
+                <h4 style={{ color: "black" }}>Usuarios</h4>
+              </a>
+            </Col>
+            <Col>
+              <a href="/configuration/kid">
+                <h4 style={{ color: "black" }}>Niños</h4>
+              </a>
+            </Col>
+            <Col>
+              <a href="/configuration/payment">
+                <h4 style={{ color: "black" }}>Pagos</h4>
+              </a>
+            </Col>
+          </Row>
+        </div>
         <Switch>
           <Route exact path="/configuration/user" component={User} />
           <Route exact path="/configuration/kid" component={Kid} />
-          <Route exact path="/configuration/payment" component={Payment}/>
+          <Route exact path="/configuration/payment" component={Payment} />
         </Switch>
       </Router>
     </div>

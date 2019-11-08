@@ -1,0 +1,100 @@
+.styles-landing-page {
+  background: #d5e4f2;
+  p {
+    font-family: "Montserrat", sans-serif;
+    font-size: 18px;
+  }
+  .cd-section {
+    .cd-media-element {
+      margin: 8px;
+      .primary-font.primary-medium-font {
+        margin-left: 8px;
+      }
+    }
+    .floating-img-left-corner {
+      position: relative;
+      top: 20px;
+      left: -35px;
+    }
+    .floating-img-right-bottom-corner {
+      position: relative;
+      bottom: 0;
+      right: 0;
+      height: 100%;
+    }
+    .external-links {
+      svg {
+        color: #d5e4f2;
+        transform-origin: 50% 50%;
+        transition: all 0.3s ease-in-out;
+        &:hover {
+          transform: scale(1.1);
+          color: #f8f8ff;
+        }
+      }
+    }
+    .cd-section-container {
+      padding-top: 3rem;
+      padding-bottom: 3rem;
+    }
+    .col-align-center {
+      display: flex;
+      align-items: center;
+    }
+    .cd-icon svg {
+      height: 42px;
+      width: 42px;
+    }
+    .row-fill-height {
+      height: 100%;
+    }
+    .card {
+      margin: 8px;
+      padding-top: 2rem;
+      border: 5px solid #f2d95e;
+      background-color: #f2b441;
+      border-radius: 25px;
+      max-width: 800px;
+      min-height: 400px;
+      transition: transform 0.3s ease-in-out;
+      &:hover {
+        transform: translateY(-10px);
+        -webkit-filter: drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.4));
+        filter: drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.4));
+      }
+      .row {
+        padding-top: 10px;
+      }
+      p {
+        font-size: 16px;
+      }
+    }
+    .primary-font.primary-large-font {
+      padding-bottom: 2rem;
+    }
+  }
+
+  .image-background {
+    min-height: 100vh;
+    width: 100%;
+    background: url(../../assets/landing/arts-and-crafts-child-close-up-color-159579.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    .color-overlay {
+      background: rgba(248, 248, 255, 0.65);
+      min-height: 100vh;
+      width: 100%;
+
+      .container-vista-principal {
+        min-height: 100vh;
+        padding-top: 8rem;
+      }
+    }
+  }
+  .chers-daycare-contacto {
+    background: #4a4972;
+    color: #f8f8ff;
+  }
+}

@@ -16,12 +16,12 @@ const NavigationBar = (props) => {
 
     const publicMenuItems = [
         {
-            name: 'Login',
-            href: '/login'
-        },
-        {
             name: 'Sobre Nosotros',
             href: '/'
+        },
+        {
+            name: 'Login',
+            href: '/login'
         }
     ];
 
@@ -58,6 +58,11 @@ const NavigationBar = (props) => {
 
     let content = (
         <div className="styles-navigation-bar">
+            <Navbar className="fix-nav" expand="lg">
+                <Navbar.Brand href="/">
+                    Cher's Daycare
+            </Navbar.Brand>
+            </Navbar>
             <Navbar fixed="top" expand="lg">
                 <Navbar.Brand href="/">
                     Cher's Daycare
@@ -66,7 +71,7 @@ const NavigationBar = (props) => {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="ml-auto navbar-control">
                         <Nav.Item>
-                            <Nav.Link>sobre</Nav.Link>
+                            <Nav.Link></Nav.Link>
                         </Nav.Item>
                         {menuItems.map((item, index) => (
                             <Nav.Item key={index}>

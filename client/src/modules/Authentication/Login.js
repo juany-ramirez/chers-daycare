@@ -32,7 +32,7 @@ const Login = props => {
                 resetForm();
                 setValidation("");
                 props.history.push("/home");
-                
+
             })
             .catch(error => {
                 setValidation("Email o contraseña incorrecta");
@@ -49,68 +49,88 @@ const Login = props => {
         <div className="styles-authentication">
             <Container>
                 <Row>
-                    <Col xs={12}>
+                    <Col className="text-center" xs={12}>
                         <PrimaryHeaderLarge title="Iniciar Sesión" />
                     </Col>
                 </Row>
-                <Formik
-                    validationSchema={ValidationSchema}
-                    initialValues={{ email: '', password: '' }}
-                    onSubmit={(values, { setSubmitting, resetForm }) => {
-                        submitForm(values, { setSubmitting, resetForm });
-                    }}
-                >
-                    {({
-                        values,
-                        errors,
-                        touched,
-                        handleChange,
-                        handleBlur,
-                        handleSubmit,
-                        isSubmitting,
-                        /* and other goodies */
-                    }) => (
-                            <Form onSubmit={handleSubmit}>
-                                <Form.Group controlId="formBasicEmail">
-                                    <Form.Label>Correo: </Form.Label>
-                                    <Form.Control
-                                        type="email"
-                                        name="email"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.email}
-                                        placeholder="Ingresar correo" />
-                                    <Form.Text className="text-muted">
-                                        {errors.email && touched.email && errors.email}
-                                    </Form.Text>
-                                </Form.Group>
-                                <Form.Group controlId="formBasicPassword">
-                                    <Form.Label>Contraseña: </Form.Label>
-                                    <Form.Control
-                                        type="password"
-                                        name="password"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.password}
-                                        placeholder="Contraseña" />
-                                    <Form.Text className="text-muted">
-                                        {errors.password && touched.password && errors.password}
-                                    </Form.Text>
-                                </Form.Group>
-                                {validation !== "" && (
-                                    <Form.Text className="text-muted">
-                                        {validation}
-                                    </Form.Text>
+                <Row>
+                    <Col md={{ span: 6, offset: 3 }} sm={12} xs={12}
+                        style={{ marginTop: 3.5 + 'rem' }}>
+
+                        <Formik
+                            validationSchema={ValidationSchema}
+                            initialValues={{ email: '', password: '' }}
+                            onSubmit={(values, { setSubmitting, resetForm }) => {
+                                submitForm(values, { setSubmitting, resetForm });
+                            }}
+                        >
+                            {({
+                                values,
+                                errors,
+                                touched,
+                                handleChange,
+                                handleBlur,
+                                handleSubmit,
+                                isSubmitting,
+                                /* and other goodies */
+                            }) => (
+                                    <Form onSubmit={handleSubmit}>
+                                        <Form.Group controlId="formBasicEmail">
+                                            <Row>
+                                                <Col xs={3}>
+                                                    <Form.Label>Correo: </Form.Label>
+                                                </Col>
+                                                <Col xs={9}>
+                                                    <Form.Control
+                                                        type="email"
+                                                        name="email"
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        value={values.email}/>
+                                                    <Form.Text className="text-muted">
+                                                        {errors.email && touched.email && errors.email}
+                                                    </Form.Text>
+                                                </Col>
+                                            </Row>
+                                        </Form.Group>
+                                        <Form.Group controlId="formBasicPassword">
+                                            <Row>
+                                                <Col xs={3}>
+                                                    <Form.Label>Contraseña: </Form.Label>
+                                                </Col>
+                                                <Col xs={9}>
+                                                    <Form.Control
+                                                        type="password"
+                                                        name="password"
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        value={values.password}/>
+                                                    <Form.Text className="text-muted">
+                                                        {errors.password && touched.password && errors.password}
+                                                    </Form.Text>
+                                                </Col>
+                                            </Row>
+                                        </Form.Group>
+                                        {validation !== "" && (
+                                            <Form.Text className="text-muted">
+                                                {validation}
+                                            </Form.Text>
+                                        )}
+                                        <Row>
+                                            <Col className="text-center" xs={12}>
+                                                <DButton
+                                                    bg="#F2B441"
+                                                    color="#4A4972"
+                                                    disabled={isSubmitting}
+                                                    title="INGRESAR"
+                                                    type="submit" />
+                                            </Col>
+                                        </Row>
+                                    </Form>
                                 )}
-                                <DButton
-                                    bg="#F2B441"
-                                    color="#4A4972"
-                                    disabled={isSubmitting}
-                                    title="INGRESAR"
-                                    type="submit" />
-                            </Form>
-                        )}
-                </Formik>
+                        </Formik>
+                    </Col>
+                </Row>
             </Container>
         </div>
     );
