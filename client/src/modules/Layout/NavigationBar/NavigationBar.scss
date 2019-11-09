@@ -1,4 +1,10 @@
 .styles-navigation-bar {
+    img.logo-chers-daycare{
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 2000;
+    }
     .navbar {
         background-color: #4A4972;
         svg {

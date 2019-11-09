@@ -58,15 +58,16 @@ const NavigationBar = (props) => {
 
     let content = (
         <div className="styles-navigation-bar">
-            <Navbar className="fix-nav" expand="lg">
-                <Navbar.Brand href="/">
-                    Cher's Daycare
-            </Navbar.Brand>
-            </Navbar>
+            <img
+                className="logo-chers-daycare"
+                alt="plane-lines"
+                src={require("../../../assets/chers-daycare-logo.svg")}
+                width="195px"
+                height="186px"
+            />
             <Navbar fixed="top" expand="lg">
                 <Navbar.Brand href="/">
-                    Cher's Daycare
-            </Navbar.Brand>
+                </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="ml-auto navbar-control">
@@ -92,7 +93,7 @@ const NavigationBar = (props) => {
                 </svg>
             </Navbar>
 
-        </div>
+        </div >
     );
     return content;
 }
