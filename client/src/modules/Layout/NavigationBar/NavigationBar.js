@@ -36,11 +36,11 @@ const NavigationBar = (props) => {
         }
     ]
 
-    const privateMenuItems = [
+    const firebaseMenuItems = [
         {
-            name: 'Login',
-            href: '/login'
-        }
+            name: 'Sobre Nosotros',
+            href: '/'
+        },
     ]
 
     const [menuItems, setMenuItems] = useState([]);
@@ -51,7 +51,7 @@ const NavigationBar = (props) => {
             setMenuItems(adminMenuItems);
             setAuthenticated(true);
         } else {
-            setMenuItems(publicMenuItems);
+            setMenuItems(firebaseMenuItems);
             setAuthenticated(false);
         }
     }, Auth.isAuthenticated());
@@ -61,12 +61,11 @@ const NavigationBar = (props) => {
             <img
                 className="logo-chers-daycare"
                 alt="plane-lines"
+                href="/"
                 src={require("../../../assets/chers-daycare-logo.svg")}
-                width="195px"
-                height="186px"
             />
             <Navbar fixed="top" expand="lg">
-                <Navbar.Brand href="/">
+                <Navbar.Brand>
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
