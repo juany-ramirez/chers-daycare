@@ -1,0 +1,2 @@
+# Ignoring client files since they are hosted on firebase
+/client

@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { Spinner } from "react-bootstrap";
-import NewPost from "./NewPost/NewPost";
+import { Spinner, Container } from "react-bootstrap";
+import NewPostHeader from "./NewPostHeader/NewPostHeader";
 import Post from "./Post/Post";
 import Auth from '../../auth';
+import { PostContext } from '../../contexts/PostContext';
 
 const Home = props => {
+  const [posts, setPosts] = useState([]);
+
+  const value = useMemo(() => ({ posts, setPosts }), [posts, setPosts]);
 
   const [state, setState] = useState({
-    loading: true,
-    posts: []
+    loading: true
   });
 
   useEffect(() => {
     getPosts();
-    
-    console.log(Auth.decodeJWT());
     // eslint-disable-next-line
   }, []);
 
@@ -26,15 +27,20 @@ const Home = props => {
         response.data.data.sort((a, b) => {
           return new Date(b.release_date) - new Date(a.release_date);
         });
-        setState({ ...state, loading: false, posts: response.data.data });
+        setState({ ...state, loading: false });
+        setPosts(response.data.data)
       })
       .catch(err => {
         console.log(err);
       });
   }
 
-  const handlePost = (newPost) => {
-    state.posts.push(newPost);
+  const handlePost = () => {
+    getPosts();
+  }
+
+  const handleNewComment = (data) => {
+    console.log(data);
   }
 
   let loadingContent = (
@@ -46,14 +52,23 @@ const Home = props => {
   );
 
   let content = (
-    <div className="daycare-home-page">
-      <NewPost handlePost={(post) => { handlePost(post) }}></NewPost>
-      <div className="post-container">
-        {state.posts.map((post, index) => (
-          <Post post={post} key={index} />
-        ))}
+    <PostContext.Provider value={value}>
+      <div className="daycare-home-page styles-layout">
+        <Container>
+          <NewPostHeader handlePost={() => { handlePost() }}></NewPostHeader>
+          <div className="post-container">
+            {posts.map((post, index) => (
+              <Post
+                key={post._id}
+                handlePost={() => { handlePost() }}
+                handleNewComment={(data) => { handleNewComment(data) }}
+                post={post}
+                index={index} />
+            ))}
+          </div>
+        </Container>
       </div>
-    </div>
+    </PostContext.Provider>
   );
 
   return state.loading ? loadingContent : content;

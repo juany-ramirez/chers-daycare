@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { PrimaryHeaderLarge, PrimaryHeaderMedium, TextLarge } from '../../components/Headers';
 import { Element, animateScroll as scroll } from 'react-scroll';

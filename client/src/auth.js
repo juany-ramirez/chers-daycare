@@ -11,7 +11,6 @@ class Auth {
     }
 
     setAuthTokenAPI(jwt) {
-        console.log('setAuthTokenAPI', jwt);
         axios.interceptors.request.use(function (config) {
             if (jwt) {
                 config.headers.Authorization = jwt;
@@ -31,7 +30,6 @@ class Auth {
 
     isAuthenticated() {
         let jwt = this.getJWT();
-        console.log('isAuthenticated', jwt);
         return jwt ? true : false;
     }
 

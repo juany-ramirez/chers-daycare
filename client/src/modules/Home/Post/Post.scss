@@ -80,17 +80,11 @@
         border: none;
     }
     .daycare-like-segment {
+        cursor: pointer;
         fill: white;
         svg {
             fill: currentColor;
-            margin-left: 20px;
-            margin-right: 20px;
-            @media only screen and (max-width : 576px) {
-                margin-left: 0px;
-                margin-right: 10px;
-            }
         }
-        
     }
     .daycare-like-segment.liked svg{
         fill: #F23C3C;

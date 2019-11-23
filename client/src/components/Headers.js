@@ -29,6 +29,9 @@ const Styles = styled.div`
     .secondary-small-font {
         font-size: 15px;
     }
+    .secondary-xs-font {
+        font-size: 10px;
+    }
 `
 
 export const PrimaryHeaderLarge = (props) => (
@@ -64,5 +67,11 @@ export const TextMedium = (props) => (
 export const TextSmall = (props) => (
     <Styles color={props.color}>
         <div className="secondary-font secondary-small-font">{props.title}</div>
+    </Styles>
+)
+
+export const TextXS = (props) => (
+    <Styles color={props.color}>
+        <div className="secondary-font secondary-xs-font">{props.title}</div>
     </Styles>
 )

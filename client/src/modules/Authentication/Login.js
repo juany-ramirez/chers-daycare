@@ -46,7 +46,7 @@ const Login = props => {
     }, []);
 
     let content = (
-        <div className="styles-authentication">
+        <div className="styles-authentication styles-layout">
             <Container>
                 <Row>
                     <Col className="text-center" xs={12}>

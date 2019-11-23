@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Nav, Navbar } from 'react-bootstrap';
-import { Router, Route } from "react-router-dom";
-import './NavigationBar.scss';
 import Auth from '../../../auth';
+import './NavigationBar.scss';
 
 const NavigationBar = (props) => {
-    console.log(props);
 
     const pushLogin = () => {
-        console.log(props);
         setAuthenticated(false);
         setMenuItems(publicMenuItems);
         props.history.push('/login');
@@ -51,10 +48,10 @@ const NavigationBar = (props) => {
             setMenuItems(adminMenuItems);
             setAuthenticated(true);
         } else {
-            setMenuItems(firebaseMenuItems);
+            setMenuItems(publicMenuItems);
             setAuthenticated(false);
         }
-    }, Auth.isAuthenticated());
+    }, Auth.isAuthenticated);
 
     let content = (
         <div className="styles-navigation-bar">
@@ -70,16 +67,13 @@ const NavigationBar = (props) => {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="ml-auto navbar-control">
-                        <Nav.Item>
-                            <Nav.Link></Nav.Link>
-                        </Nav.Item>
                         {menuItems.map((item, index) => (
-                            <Nav.Item key={index}>
+                            <Nav.Item className="text-right" key={index}>
                                 <Nav.Link href={item.href} >{item.name}</Nav.Link>
                             </Nav.Item>
                         ))}
                         {isAuthenticated && (
-                            <Nav.Item><Nav.Link onClick={() => {
+                            <Nav.Item className="text-right"><Nav.Link onClick={() => {
                                 Auth.logout(() => {
                                     pushLogin()
                                 })

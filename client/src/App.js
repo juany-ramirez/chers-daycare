@@ -2,15 +2,13 @@ import React, { useEffect } from 'react';
 import { Router, Route, Switch } from 'react-router-dom';
 import Authentication from './modules/Authentication/Authentication';
 import { Footer } from './modules/Layout/Footer/Footer';
-import { Layout } from './modules/Layout/Layout';
 import NavigationBar from './modules/Layout/NavigationBar/NavigationBar';
 import Configuration from './modules/Configuration/Configuration';
 import Home from './modules/Home/Home';
 import LandingPage from './modules/LandingPage';
-import './App.scss';
 import { ProtectedRoute } from './protected.route';
 import { history } from './_helpers/history';
-import { Container } from 'react-bootstrap';
+import './App.scss';
 
 const App = (props) => {
 
