@@ -151,29 +151,21 @@ const Post = props => {
       )
       .then(response => {
         if (response.data.success) {
-          const data = {
-            liked: !state.liked,
-            index: props.index
-          };
-          handleLike(data);
+          const currentUserId = Auth.decodeJWT().sub;
+          let postCopy = [...posts];
+          if (!state.liked) {
+            postCopy[props.index].likes.push(currentUserId);
+            setPosts(postCopy);
+          } else {
+            postCopy[props.index].likes.splice(
+              posts[props.index].likes.indexOf(currentUserId),
+              1
+            );
+          }
+          setPosts(postCopy);
         }
       })
       .catch(error => console.error("Error:", error));
-  };
-
-  const handleLike = ({ liked, index }) => {
-    const currentUserId = Auth.decodeJWT().sub;
-    let postCopy = [...props.posts];
-    if (liked) {
-      postCopy[index].likes.push(currentUserId);
-      setPosts(postCopy);
-    } else {
-      postCopy[index].likes.splice(
-        props.posts[index].likes.indexOf(currentUserId),
-        1
-      );
-      setPosts(postCopy);
-    }
   };
 
   return !props.post ? (
