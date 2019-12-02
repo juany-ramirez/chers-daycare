@@ -54,8 +54,7 @@ updateUser = (req, res, next) => {
         user.notifications = req.body.notifications;
         user.rol = req.body.rol;
         user.save().then((user) => {
-            const token = signToken(user);
-            res.send({ success: true, data: token });
+            res.send({ success: true, data: user });
         }).catch((err) =>
             res.status(422).send({ success: false, error: err.message })
         );
@@ -92,8 +91,7 @@ module.exports = {
         user.user_type = rol_type._id;
         
         user.save().then((user) => {
-            const token = signToken(user);
-            res.send({ success: true, data: token });
+            res.send({ success: true, data: user });
         }).catch((err) =>
             res.status(422).send({ success: false, error: err.message })
         );

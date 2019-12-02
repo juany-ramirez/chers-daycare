@@ -1,14 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import DModal from "../../../components/Modals";
 import UserModal from "./UserModal";
 import { PrimaryHeaderLarge, DButton } from "../../../components";
 import { Table, Spinner, Row, Modal } from "react-bootstrap";
+import { UserContext } from "../../../contexts/UserContext";
 
 const User = props => {
+    const [users, setUsers] = useState([]);
+  
+    const value = useMemo(() => ({ users, setUsers }), [users, setUsers]);
     const [state, setState] = useState({
-        loading: true,
-        users: [],
+        loading: true
     });
     const [smShow, setSmShow] = useState(false);
     const [message, setMessage] = useState("");
@@ -41,19 +44,12 @@ const User = props => {
             });
     };
 
-    const userEdited = () => {
-        getUsers();
-    }
-
-    const userCreated = () => {
-        getUsers();
-    }
-
     const getUsers = () => {
         axios.get(`${process.env.REACT_APP_NODE_API}/api/users`)
             .then(response => {
                 console.log(response.data);
-                setState({ ...state, loading: false, users: response.data.data });
+                setState({ ...state, loading: false });
+                setUsers(response.data.data);
             })
             .catch(err => {
                 console.log(err);
@@ -74,6 +70,7 @@ const User = props => {
     );
 
     let content = (
+        <UserContext.Provider value={value}>
         <div className="text-center">
             <PrimaryHeaderLarge title="Usuarios" />
             <UserModal
@@ -94,8 +91,8 @@ const User = props => {
                     </tr>
                 </thead>
                 <tbody>
-                    {state.users.map((user, index) => (
-                        <tr key={index}>
+                    {users.map((user, index) => (
+                        <tr key={user._id}>
                             <td>{index + 1}</td>
                             <td>
                                 {user.names} {user.last_names}
@@ -114,8 +111,6 @@ const User = props => {
                                         type="edit"
                                         title="Editar usuario"
                                         user={user}
-                                        isEdited={ () => { userEdited() } }
-                                        isCreated={ () => { userCreated() } }
                                     />
                                     <DModal
                                         index={index}
@@ -157,6 +152,7 @@ const User = props => {
                 </Modal.Body>
             </Modal>
         </div>
+    </UserContext.Provider>
     );
     return state.loading ? loadingContent : content;
 }

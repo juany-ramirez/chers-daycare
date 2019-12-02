@@ -72,7 +72,6 @@ router.put('/:id', (req, res) => {
         {
             $set:
             {
-
                 names: req.body.names,
                 last_names: req.body.last_names,
                 profiles: req.body.profiles,
