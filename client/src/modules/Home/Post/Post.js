@@ -33,7 +33,7 @@ const Post = props => {
     liked: false
   });
 
-  let [comments, setComments] = useState(null);
+  let [comments, setComments] = useState([]);
   const [smShow, setSmShow] = useState(false);
   const [message, setMessage] = useState("");
   const [loadingModal, setLoadingModal] = useState(false);
@@ -66,6 +66,7 @@ const Post = props => {
           .get(`${process.env.REACT_APP_NODE_API}/api/users/${idPerson}`)
           .then(response => {
             const comment = {
+              commenterId: data.commenter,
               commenter: `${response.data.data.names} ${response.data.data.last_names}`,
               comment: data.comment,
               date: data.date,
@@ -120,7 +121,10 @@ const Post = props => {
           const commentList = response.data.data.comments;
           const lastComment = commentList.length - 1;
           const comment = {
-            commenter: `${Auth.decodeJWT().names} ${Auth.decodeJWT().last_names}`,
+            commenter: `${Auth.decodeJWT().names} ${
+              Auth.decodeJWT().last_names
+            }`,
+            commenterId: commentList[lastComment].commenter,
             comment: commentList[lastComment].comment,
             date: commentList[lastComment].date,
             _id: commentList[lastComment]._id
@@ -129,7 +133,7 @@ const Post = props => {
           postCopy[props.index].comments.push(response.data.data);
           comments.push(comment);
           setComments(comments);
-          setPosts(postCopy);  
+          setPosts(postCopy);
         } else {
           setValidation("Lo sentimos, ha ocurrido un error :(");
         }
@@ -138,6 +142,13 @@ const Post = props => {
         setValidation("Lo sentimos, ha ocurrido un error :(");
       });
     setSubmitting(false);
+  };
+
+  const deleteComment = id => {
+    let commentList = comments.filter(comment => {
+      return comment._id != id;
+    });
+    setComments(commentList);
   };
 
   const isLiked = () => {
@@ -192,23 +203,24 @@ const Post = props => {
               />
             </Col>
             <Col lg={1} xs={2}>
-              <DropdownButton
-                alignRight
-                size="sm"
-                title=""
-                id="dropdown-menu-align-right"
-              >
-                <Dropdown.Item eventKey="1">Editar Publicación</Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item
-                  onClick={() => {
-                    onDeletePost();
-                  }}
-                  eventKey="4"
+              {Auth.decodeJWT().rol === 1 && (
+                <DropdownButton
+                  alignRight
+                  size="sm"
+                  title=""
+                  variant="warning"
+                  id="dropdown-menu-align-right"
                 >
-                  Borrar publicación
-                </Dropdown.Item>
-              </DropdownButton>
+                  <Dropdown.Item
+                    onClick={() => {
+                      onDeletePost();
+                    }}
+                    eventKey="4"
+                  >
+                    Borrar publicación
+                  </Dropdown.Item>
+                </DropdownButton>
+              )}
             </Col>
           </Row>
         </Card.Header>
@@ -248,10 +260,12 @@ const Post = props => {
               </Row>
             </Media.Body>
           </Media>
-          {comments != null && (
+          {comments.length > 0 && (
             <Comment
               postId={props.post._id}
-              index={props.index}
+              handleCommentDeleted={data => {
+                deleteComment(data);
+              }}
               comments={comments}
             />
           )}
@@ -331,19 +345,19 @@ const Post = props => {
           <Row className="d-flex justify-content-end">
             <DButton
               handleClick={() => {
-                setSmShow(false);
-              }}
-              bg="#4a4972"
-              title="No"
-            />
-            <DButton
-              handleClick={() => {
                 deletePost();
               }}
               loading={loadingModal ? "loading" : ""}
               bg="#f23c3c"
               color="#ffff"
               title="Si"
+            />
+            <DButton
+              handleClick={() => {
+                setSmShow(false);
+              }}
+              bg="#4a4972"
+              title="No"
             />
           </Row>
         </Modal.Body>
