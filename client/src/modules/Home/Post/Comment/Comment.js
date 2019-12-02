@@ -29,11 +29,10 @@ const Comment = (props) => {
     axios.delete(`${process.env.REACT_APP_NODE_API}/api/posts/${props.postId}/comment/${data._id}`)
       .then(response => {
         setLoadingModal(false);
-        if (response.data.success) {
-          setMessage("Se ha eliminado el Comentario");
-        } else {
+        if (!response.data.success){
           setMessage("Lo sentimos, ha ocurrido un error :(");
         }
+        setSmShow(false);
       })
       .catch(err => {
         setMessage("Lo sentimos, ha ocurrido un error :(");
@@ -71,6 +70,7 @@ const Comment = (props) => {
                   alignRight
                   size="sm"
                   title=""
+                  className="cdc-light-blue"
                   id="dropdown-menu-align-right"
                 >
                   <Dropdown.Item

@@ -39,10 +39,6 @@ const Home = props => {
     getPosts();
   }
 
-  const handleNewComment = (data) => {
-    console.log(data);
-  }
-
   let loadingContent = (
     <div className="container text-center">
       <Spinner animation="grow" variant="light" />
@@ -61,7 +57,6 @@ const Home = props => {
               <Post
                 key={post._id}
                 handlePost={() => { handlePost() }}
-                handleNewComment={(data) => { handleNewComment(data) }}
                 post={post}
                 index={index} />
             ))}

@@ -109,18 +109,27 @@ const Post = props => {
   const submitComment = (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
     values.commenter = Auth.decodeJWT().sub;
-    console.log(values);
     axios
       .put(
         `${process.env.REACT_APP_NODE_API}/api/posts/${props.post._id}/comment`,
         values
       )
       .then(response => {
-        //setValidation("");
-        console.log(response);
         if (response.data.success) {
           resetForm();
-          props.handleNewComment(response.data.data);
+          const commentList = response.data.data.comments;
+          const lastComment = commentList.length - 1;
+          const comment = {
+            commenter: `${Auth.decodeJWT().names} ${Auth.decodeJWT().last_names}`,
+            comment: commentList[lastComment].comment,
+            date: commentList[lastComment].date,
+            _id: commentList[lastComment]._id
+          };
+          let postCopy = [...posts];
+          postCopy[props.index].comments.push(response.data.data);
+          comments.push(comment);
+          setComments(comments);
+          setPosts(postCopy);  
         } else {
           setValidation("Lo sentimos, ha ocurrido un error :(");
         }
@@ -240,7 +249,11 @@ const Post = props => {
             </Media.Body>
           </Media>
           {comments != null && (
-            <Comment postId={props.post._id} comments={comments} />
+            <Comment
+              postId={props.post._id}
+              index={props.index}
+              comments={comments}
+            />
           )}
         </Card.Body>
         {validation !== "" && <p className="text-muted">{validation}</p>}

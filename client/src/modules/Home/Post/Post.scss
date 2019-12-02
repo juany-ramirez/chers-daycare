@@ -75,9 +75,26 @@
             }
         }
     }
-    .show .dropdown-toggle {
+    .dropdown-toggle, .dropdown-toggle:active {
         background-color: #F2D95E;
         border: none;
+    }
+    .cdc-light-blue{
+        .dropdown-toggle{
+            background-color: #d5e4f2;
+            border: none;
+        }
+        .dropdown-menu {
+            background-color: #d5e4f2;
+            border: none;
+            .dropdown-item {
+                color: #4a4972;
+                &:hover {
+                    background-color: #4a4972;
+                    color: white;
+                }
+            }
+        }
     }
     .daycare-like-segment {
         cursor: pointer;
