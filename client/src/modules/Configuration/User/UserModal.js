@@ -265,15 +265,15 @@ const UserModal = props => {
                     onBlur={handleBlur}
                     defaultValue={3}
                   >
-                    <ToggleButton variant="secondary" value={1}>
+                    <ToggleButton variant="warning" value={1}>
                       {" "}
                       Administrador{" "}
                     </ToggleButton>
-                    <ToggleButton variant="secondary" value={2}>
+                    <ToggleButton variant="warning" value={2}>
                       {" "}
                       Caretaker{" "}
                     </ToggleButton>
-                    <ToggleButton variant="secondary" value={3}>
+                    <ToggleButton variant="warning" value={3}>
                       {" "}
                       Padre/Madre{" "}
                     </ToggleButton>

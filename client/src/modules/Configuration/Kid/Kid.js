@@ -22,11 +22,17 @@ const Kid = props => {
   const emptyKid = {
     names: "",
     last_names: "",
-    parent: "",
-    singular_payments: [],
-    monthly_payment: [],
+    profiles: [],
     tags: [],
-    profiles: []
+    monthly_payment: {
+      first_date: new Date(new Date().getFullYear(), 0, 1),
+      second_date: new Date(new Date().getFullYear(), 11, 1),
+      payment: 0,
+      payed: 0,
+      done: true
+    },
+    singular_payment: [],
+    parent: ""
   };
 
   const deleteKid = id => {
@@ -34,7 +40,7 @@ const Kid = props => {
       .delete(`${process.env.REACT_APP_NODE_API}/api/kids/${id}`)
       .then(response => {
         if (response.data.success) {
-          setMessage("Se ha eliminado el Usuario");
+          setMessage("Se ha eliminado el Niño");
           setSmShow(true);
           getKids();
         } else {
@@ -85,13 +91,7 @@ const Kid = props => {
     <KidContext.Provider value={value}>
       <div className="text-center">
         <PrimaryHeaderLarge title="Niños" />
-        {/* {/* <KidModal
-            type="create"
-            title="Crear nuevo usuario"
-            kid={emptyKid}
-        /> */}
-        <Button variant="warning">Agregar Niño</Button>
-        <br />
+        <KidModal type="create" title="Agregar Niño" kid={emptyKid} />
         <br />
         <Table striped bordered variant="light" hover>
           <thead>
@@ -109,7 +109,8 @@ const Kid = props => {
                 <td> {kid.last_names} </td>
                 <td>
                   <Row className="d-flex justify-content-around">
-                    {/* <KidModal
+                    {/*
+                    <KidModal
                                     index={index}
                                     type="edit"
                                     title="Editar usuario"
