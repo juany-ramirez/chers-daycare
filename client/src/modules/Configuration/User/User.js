@@ -79,7 +79,7 @@ const User = props => {
                 user={emptyUser}
             />
             <br />
-            <Table striped bordered variant="light" hover>
+            <Table responsive="sm" striped bordered variant="light" hover>
                 <thead>
                     <tr>
                         <th>#</th>

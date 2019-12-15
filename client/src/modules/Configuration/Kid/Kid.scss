@@ -1,7 +1,52 @@
 .btn-group-form {
-    button {
-        color: #4A4972 !important;
-        background-color: #D5E4F2!important;
-        border: none !important;
+  button {
+    color: #4a4972 !important;
+    background-color: #d5e4f2 !important;
+    border: none !important;
+  }
+}
+.cd-chip-input {
+  .btn {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    background-color: #d5e4f2;
+    color: #4a4972;
+    border: none;
+    cursor: default;
+    .badge {
+      cursor: pointer;
+      height: 100%;
+      &:hover {
+        font-weight: 1000;
+      }
     }
+  }
+}
+.cd-multiple-option {
+  option {
+    cursor: pointer;
+    &:hover {
+      background-color: #d5e4f2;
+    }
+    &:checked {
+      background-color: #d5e4f2 !important;
+    }
+  }
+}
+.react-datepicker-wrapper {
+  width: calc(50% - 5px);
+  margin-right: 5px;
+}
+.react-datepicker__input-container,
+.cd-formika-field {
+  width: 100%;
+}
+input {
+  width: 100%;
+  height: calc(1.5em + 0.75rem + 2px);
+  border-radius: 0.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding-left: 5px;
+  padding-right: 5px;
 }

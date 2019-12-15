@@ -73,8 +73,8 @@ const KidsSchema = mongoose.Schema({
             required: false
         }
     }],
-    parent: {
-        type: mongoose.Schema.Types.ObjectId,
+    parents: {
+        type: [mongoose.Schema.Types.ObjectId],
         required: true
     },
 });

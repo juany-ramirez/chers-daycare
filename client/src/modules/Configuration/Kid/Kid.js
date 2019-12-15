@@ -5,6 +5,7 @@ import KidModal from "./KidModal";
 import { PrimaryHeaderLarge, DButton } from "../../../components";
 import { Table, Spinner, Row, Modal, Button } from "react-bootstrap";
 import { KidContext } from "../../../contexts/KidContext";
+import "./Kid.scss";
 
 const Kid = props => {
   const [kids, setKids] = useState([]);
@@ -25,14 +26,14 @@ const Kid = props => {
     profiles: [],
     tags: [],
     monthly_payment: {
-      first_date: new Date(new Date().getFullYear(), 0, 1),
-      second_date: new Date(new Date().getFullYear(), 11, 1),
-      payment: 0,
+      first_date: false,
+      second_date: false,
+      payment: "",
       payed: 0,
       done: true
     },
     singular_payment: [],
-    parent: ""
+    parents: []
   };
 
   const deleteKid = id => {
@@ -81,9 +82,9 @@ const Kid = props => {
 
   let loadingContent = (
     <div className="container text-center">
-      <Spinner animation="grow" variant="light" />
-      <Spinner animation="grow" variant="light" />
-      <Spinner animation="grow" variant="light" />
+    <Spinner animation="grow" variant="light" />
+    <Spinner animation="grow" variant="light" />
+    <Spinner animation="grow" variant="light" />
     </div>
   );
 
@@ -93,7 +94,7 @@ const Kid = props => {
         <PrimaryHeaderLarge title="Niños" />
         <KidModal type="create" title="Agregar Niño" kid={emptyKid} />
         <br />
-        <Table striped bordered variant="light" hover>
+        <Table responsive="sm" striped bordered variant="light" hover>
           <thead>
             <tr>
               <th>#</th>

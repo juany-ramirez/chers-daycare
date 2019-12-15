@@ -64,7 +64,7 @@ const Payment = props => {
             <Button variant="warning" >Ingresar nuevo pago</Button>
             <br />
             <br />
-            <Table striped bordered variant="light" hover>
+            <Table responsive="sm" striped bordered variant="light" hover>
                 <thead>
                     <tr>
                         <th>#</th>
