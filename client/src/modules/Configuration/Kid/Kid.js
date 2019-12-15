@@ -26,8 +26,8 @@ const Kid = props => {
     profiles: [],
     tags: [],
     monthly_payment: {
-      first_date: false,
-      second_date: false,
+      first_date: "",
+      second_date: "",
       payment: "",
       payed: 0,
       done: true

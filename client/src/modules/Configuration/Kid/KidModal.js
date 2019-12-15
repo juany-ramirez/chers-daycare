@@ -11,10 +11,8 @@ import {
   Row,
   Col,
   Collapse,
-  Badge,
   Table,
-  OverlayTrigger,
-  Tooltip,
+  Alert,
   Spinner
 } from "react-bootstrap";
 import {
@@ -45,28 +43,37 @@ const KidModal = props => {
     last_names: Yup.string()
       .max(255, "El texto es muy largo")
       .required("Apellidos requeridos"),
-    profiles: Yup.mixed(),
-    monthly_payment: Yup.object().shape({
-      first_date: Yup.date()
-        .typeError("Debe especificar fecha de inicio.")
-        .required("Fecha de inicio es requerida."),
-      second_date: Yup.date()
-        .typeError("Debe especificar fecha final.")
-        .required("Fecha final es requerida."),
-      payment: Yup.number()
-        .min(0, "Monto debe ser mayor o igual a cero.")
-        .typeError("Debe especificar un monto.")
-        .required("Monto requerido")
-    }),
-    singular_payment: Yup.array().of(
-      Yup.object().shape({
-        first_date: Yup.date().required("Fecha es requerida."),
+    profiles: Yup.array().of(Yup.mixed()),
+    monthly_payment: Yup.object()
+      .default(null)
+      .nullable()
+      .shape({
+        first_date: Yup.date()
+          .typeError("Debe especificar fecha de inicio.")
+          .required("Fecha de inicio es requerida."),
+        second_date: Yup.date()
+          .typeError("Debe especificar fecha final.")
+          .required("Fecha final es requerida."),
         payment: Yup.number()
           .min(0, "Monto debe ser mayor o igual a cero.")
           .typeError("Debe especificar un monto.")
           .required("Monto requerido")
-      })
-    ),
+      }),
+    singular_payment_object: Yup.object()
+      .default(null)
+      .nullable()
+      .shape({
+        first_date: Yup.date()
+          .typeError("Debe especificar fecha de inicio.")
+          .required("Fecha es requerida."),
+        payment: Yup.number()
+          .min(0, "Monto debe ser mayor o igual a cero.")
+          .typeError("Debe especificar un monto.")
+          .required("Monto requerido")
+      }),
+    singular_payment: Yup.array()
+      .nullable()
+      .of(Yup.object()),
     parents: Yup.array()
       .min(1, "Debe seleccionar por lo menos un perfil.")
       .required("Padre(s) requeridos")
@@ -102,8 +109,6 @@ const KidModal = props => {
           parents: parents,
           selectedParents: selectedParents
         });
-        console.log(parents);
-        console.log(selectedParents);
       })
       .catch(err => {
         console.log(err);
@@ -111,16 +116,26 @@ const KidModal = props => {
   };
 
   const createUser = (values, { resetForm }) => {
+    values.monthly_payment = values.monthly_payment
+      ? values.monthly_payment
+      : {};
+
+    values.singular_payment = values.singular_payment
+      ? values.singular_payment
+      : [];
+    console.log("VALUES NEW KID", values);
+
     axios
-      .post(`${process.env.REACT_APP_NODE_API}/api/auth/signup`, values)
+      .post(`${process.env.REACT_APP_NODE_API}/api/kids`, values)
       .then(response => {
         setValidation("");
         console.log(response);
         if (response.data.success) {
+          setState({ ...state, monthlyPayment: false, singularPayment: false });
           resetForm();
-          setMessage("Se ha creado nuevo Usuario");
+          setMessage("Se ha ingresado nuevo niño");
           setSmShow(true);
-          props.isEdited();
+          // EDITAR EL CONTEXT API DEL NINO
         } else {
           setMessage("Lo sentimos, ha ocurrido un error :(");
           setSmShow(true);
@@ -130,25 +145,6 @@ const KidModal = props => {
         setValidation("Ha ocurrido un error");
       });
   };
-
-  function validatePayment(values, touched, errors) {
-    console.log("values", values);
-    console.log("touched", touched);
-    console.log("errors", errors);
-    let error;
-    if (
-      values.monthly_payment.payment !== "" &&
-      !values.monthly_payment.first_date &&
-      !values.monthly_payment.second_date
-    )
-      return error;
-    if (!values.monthly_payment.payment) {
-      error = "Monto requerido";
-    } else if (values.monthly_payment.payment < 0) {
-      error = "Monto debe ser mayor o igual a cero.";
-    }
-    return error;
-  }
 
   const modifyUser = values => {
     const kid = props.kid;
@@ -213,27 +209,21 @@ const KidModal = props => {
               last_names: props.kid.last_names,
               profiles: props.kid.profiles,
               tags: props.kid.tags,
-              monthly_payment: {
-                first_date: props.kid.monthly_payment.first_date,
-                second_date: props.kid.monthly_payment.second_date,
-                payment: props.kid.monthly_payment.payment,
-                payed: props.kid.monthly_payment.payed,
-                done: props.kid.monthly_payment.done
-              },
-              singular_payment: [
-                {
-                  first_date: props.kid.singular_payment.first_date,
-                  payment: props.kid.singular_payment.payment,
-                  payed: props.kid.singular_payment.payed,
-                  done: props.kid.singular_payment.done
-                }
-              ],
+              monthly_payment:
+                props.kid.monthly_payment.second_date === ""
+                  ? null
+                  : {
+                      first_date: props.kid.monthly_payment.first_date,
+                      second_date: props.kid.monthly_payment.second_date,
+                      payment: props.kid.monthly_payment.payment,
+                      payed: props.kid.monthly_payment.payed,
+                      done: props.kid.monthly_payment.done
+                    },
+              singular_payment_object: null,
+              singular_payment: props.kid.singular_payment,
               parents: props.kid.parents
             }}
-            onSubmit={(values, errors, { setSubmitting, resetForm }) => {
-              console.log(values);
-              console.log(errors);
-
+            onSubmit={(values, { setSubmitting, resetForm }) => {
               submitForm(values, { setSubmitting, resetForm });
             }}
           >
@@ -356,6 +346,7 @@ const KidModal = props => {
                             });
                             valueParents.push(parent._id);
                             setFieldValue("parents", valueParents);
+                            setFieldTouched("parents", true);
                           }}
                         >
                           {parent.names} {parent.last_names} - {parent.email}
@@ -363,9 +354,11 @@ const KidModal = props => {
                       ))}
                     </Form.Control>
                   )}
-                  <Form.Text className="text-muted">
-                    {errors.parent && touched.parent && errors.parent}
-                  </Form.Text>
+                  {values.parents.length === 0 && touched.parents && (
+                    <Form.Text className="text-muted">
+                      Padre(s) requeridos
+                    </Form.Text>
+                  )}
                 </Form.Group>
                 <Card>
                   <Card.Header>
@@ -386,17 +379,8 @@ const KidModal = props => {
                           <CreateRoundButton
                             aria-controls="monthly-form"
                             aria-expanded={state.monthlyPayment}
-                            handleClick={() =>
-                              setState({ ...state, monthlyPayment: true })
-                            }
-                          />
-                        )}
-                        {state.monthlyPayment && (
-                          <DeleteRoundButton
-                            aria-controls="monthly-form"
-                            aria-expanded={state.monthlyPayment}
                             handleClick={() => {
-                              setState({ ...state, monthlyPayment: false });
+                              setState({ ...state, monthlyPayment: true });
                               setFieldValue(
                                 "monthly_payment.first_date",
                                 false,
@@ -415,85 +399,117 @@ const KidModal = props => {
                             }}
                           />
                         )}
+                        {state.monthlyPayment && (
+                          <DeleteRoundButton
+                            aria-controls="monthly-form"
+                            aria-expanded={state.monthlyPayment}
+                            handleClick={() => {
+                              setState({ ...state, monthlyPayment: false });
+                              setFieldValue("monthly_payment", null, false);
+                              setFieldTouched(
+                                "monthly_payment.first_date",
+                                false
+                              );
+                              setFieldTouched(
+                                "monthly_payment.second_date",
+                                false
+                              );
+                              setFieldTouched("monthly_payment.payment", false);
+                            }}
+                          />
+                        )}
                       </Col>
                     </Row>
                   </Card.Header>
                   <Collapse in={state.monthlyPayment}>
-                    <Card.Body id="monthly-form">
-                      <Form.Group controlId="formMonthlyStartDate">
-                        <Form.Label>Rango de Meses: </Form.Label>
-                        <br></br>
-                        <DatePicker
-                          placeholderText="Fecha de inicio"
-                          selected={values.monthly_payment.first_date}
-                          onChange={date => {
-                            setFieldTouched("monthly_payment.first_date", true);
-                            setFieldValue("monthly_payment.first_date", date);
-                          }}
-                          onBlur={handleBlur}
-                          selectsStart
-                          value={values.monthly_payment.first_date}
-                          startDate={values.monthly_payment.first_date}
-                          endDate={values.monthly_payment.second_date}
-                          dateFormat="MM/yyyy"
-                          showMonthYearPicker
-                        />
-                        <DatePicker
-                          placeholderText="Fecha de final"
-                          selected={values.monthly_payment.second_date}
-                          onBlur={handleBlur}
-                          onChange={date => {
-                            setFieldTouched(
-                              "monthly_payment.second_date",
-                              true
-                            );
-                            setFieldValue("monthly_payment.second_date", date);
-                          }}
-                          selectsEnd
-                          value={values.monthly_payment.second_date}
-                          startDate={values.monthly_payment.first_date}
-                          endDate={values.monthly_payment.second_date}
-                          dateFormat="MM/yyyy"
-                          showMonthYearPicker
-                        />
-                        <ErrorMessage
-                          component="div"
-                          name="monthly_payment.first_date"
-                          className="text-muted"
-                        />
-                        <ErrorMessage
-                          component="div"
-                          name="monthly_payment.second_date"
-                          className="text-muted"
-                        />
-                      </Form.Group>
-                      <Form.Group controlId="formMonthlyPayment">
-                        <Form.Label>Mensualidad: </Form.Label>
-                        {/* <Field
-                          className="cd-formika-field"
-                          type="number"
-                          name="monthly_payment.payment"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          value={values.monthly_payment.payment}
-                          placeholder="Ingresar mensualidad"
-                          validate={validatePayment(values, touched, errors)}
-                        /> */}
-                        <Form.Control
-                          type="number"
-                          name="monthly_payment.payment"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          value={values.monthly_payment.payment}
-                          placeholder="Ingresar mensualidad"
-                        />
-                        <ErrorMessage
-                          component="div"
-                          name="monthly_payment.payment"
-                          className="text-muted"
-                        />
-                      </Form.Group>
-                    </Card.Body>
+                    <div>
+                      {state.monthlyPayment && (
+                        <Card.Body id="monthly-form">
+                          <Form.Group controlId="formMonthlyStartDate">
+                            <Form.Label>Rango de Meses: </Form.Label>
+                            <br></br>
+                            <DatePicker
+                              id="monthly_payment.first_date"
+                              name="monthly_payment.first_date"
+                              onBlur={handleBlur}
+                              placeholderText="Fecha de inicio"
+                              selected={values.monthly_payment.first_date}
+                              onChange={date => {
+                                setFieldTouched(
+                                  "monthly_payment.first_date",
+                                  true
+                                );
+                                setFieldValue(
+                                  "monthly_payment.first_date",
+                                  date
+                                );
+                              }}
+                              selectsStart
+                              value={values.monthly_payment.first_date}
+                              startDate={values.monthly_payment.first_date}
+                              endDate={values.monthly_payment.second_date}
+                              dateFormat="MM/yyyy"
+                              showMonthYearPicker
+                            />
+                            <DatePicker
+                              id="monthly_payment.second_date"
+                              name="monthly_payment.second_date"
+                              onBlur={handleBlur}
+                              placeholderText="Fecha de final"
+                              selected={values.monthly_payment.second_date}
+                              onChange={date => {
+                                setFieldTouched(
+                                  "monthly_payment.second_date",
+                                  true
+                                );
+                                setFieldValue(
+                                  "monthly_payment.second_date",
+                                  date
+                                );
+                              }}
+                              selectsEnd
+                              value={values.monthly_payment.second_date}
+                              startDate={values.monthly_payment.first_date}
+                              endDate={values.monthly_payment.second_date}
+                              dateFormat="MM/yyyy"
+                              showMonthYearPicker
+                            />
+                            <Row>
+                              <Col>
+                                <ErrorMessage
+                                  component="div"
+                                  name="monthly_payment.first_date"
+                                  className="text-muted"
+                                />
+                              </Col>
+                              <Col>
+                                <ErrorMessage
+                                  component="div"
+                                  name="monthly_payment.second_date"
+                                  className="text-muted"
+                                />
+                              </Col>
+                            </Row>
+                          </Form.Group>
+                          <Form.Group controlId="formMonthlyPayment">
+                            <Form.Label>Mensualidad: </Form.Label>
+                            <Form.Control
+                              type="number"
+                              name="monthly_payment.payment"
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.monthly_payment.payment}
+                              placeholder="Ingresar mensualidad"
+                            />
+                            <ErrorMessage
+                              component="div"
+                              name="monthly_payment.payment"
+                              className="text-muted"
+                            />
+                          </Form.Group>
+                        </Card.Body>
+                      )}
+                    </div>
                   </Collapse>
                 </Card>
                 <br />
@@ -516,9 +532,19 @@ const KidModal = props => {
                           <CreateRoundButton
                             aria-controls="singular-payment-form"
                             aria-expanded={state.monthlyPayment}
-                            handleClick={() =>
-                              setState({ ...state, singularPayment: true })
-                            }
+                            handleClick={() => {
+                              setState({ ...state, singularPayment: true });
+                              setFieldValue(
+                                "singular_payment_object.first_date",
+                                false,
+                                false
+                              );
+                              setFieldValue(
+                                "singular_payment_object.payment",
+                                false,
+                                false
+                              );
+                            }}
                           />
                         )}
                         {state.singularPayment && (
@@ -528,13 +554,16 @@ const KidModal = props => {
                             handleClick={() => {
                               setState({ ...state, singularPayment: false });
                               setFieldValue(
-                                "singular_payment.first_date",
-                                false,
+                                "singular_payment_object",
+                                null,
                                 false
                               );
-                              setFieldValue(
-                                "singular_payment.payment",
-                                false,
+                              setFieldTouched(
+                                "singular_payment_object.payment",
+                                false
+                              );
+                              setFieldTouched(
+                                "singular_payment_object.first_date",
                                 false
                               );
                             }}
@@ -544,109 +573,175 @@ const KidModal = props => {
                     </Row>
                   </Card.Header>
                   <Collapse in={state.singularPayment}>
-                    <Card.Body id="singular-payment-form">
-                      <Form.Group controlId="formSingularStartDate">
-                        <Form.Label>Fecha: </Form.Label>
-                        <br></br>
-                        <DatePicker
-                          placeholderText="Fecha"
-                          selected={values.singular_payment.first_date}
-                          onChange={date =>
-                            setFieldValue("singular_payment.first_date", date)
-                          }
-                          value={values.singular_payment.first_date}
-                          showTimeSelect
-                          dateFormat="MMMM d, yyyy h:mm aa"
-                        />
-                        <ErrorMessage
-                          component="div"
-                          name="singular_payment.first_date"
-                          className="text-muted"
-                        />
-                      </Form.Group>
-                      <Form.Group controlId="formsingularPayment">
-                        <Form.Label>Monto: </Form.Label>
-                        <Form.Control
-                          type="number"
-                          name="singular_payment.payment"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          value={values.singular_payment.payment}
-                          placeholder="Ingresar monto total"
-                        />
-                        <ErrorMessage
-                          component="div"
-                          name="singular_payment.payment"
-                          className="text-muted"
-                        />
-                      </Form.Group>
-                    </Card.Body>
+                    <div>
+                      {state.singularPayment && (
+                        <Card.Body id="singular-payment-form">
+                          <Form.Group controlId="formSingularStartDate">
+                            <Form.Label>Fecha: </Form.Label>
+                            <br></br>
+                            <DatePicker
+                              id="singular_payment_object.first_date"
+                              name="singular_payment_object.first_date"
+                              onBlur={handleBlur}
+                              placeholderText="Fecha"
+                              selected={
+                                values.singular_payment_object.first_date
+                              }
+                              onChange={date => {
+                                setFieldTouched(
+                                  "singular_payment_object.first_date",
+                                  true
+                                );
+                                setFieldValue(
+                                  "singular_payment_object.first_date",
+                                  date
+                                );
+                              }}
+                              value={values.singular_payment_object.first_date}
+                              showTimeSelect
+                              dateFormat="MMMM d, yyyy h:mm aa"
+                            />
+                            <ErrorMessage
+                              component="div"
+                              name="singular_payment_object.first_date"
+                              className="text-muted"
+                            />
+                          </Form.Group>
+                          <Form.Group controlId="formsingularPayment">
+                            <Form.Label>Monto: </Form.Label>
+                            <Form.Control
+                              type="number"
+                              name="singular_payment_object.payment"
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              value={values.singular_payment_object.payment}
+                              placeholder="Ingresar monto total"
+                            />
+                            <ErrorMessage
+                              component="div"
+                              name="singular_payment_object.payment"
+                              className="text-muted"
+                            />
+                            <br />
+                            <Button
+                              onClick={() => {
+                                setFieldTouched(
+                                  "singular_payment_object.first_date",
+                                  true
+                                );
+                                setFieldTouched(
+                                  "singular_payment_object.payment",
+                                  true
+                                );
+                                console.log(errors);
+                                
+                                if (
+                                  !errors.singular_payment_object
+                                ) {
+                                  let data = {
+                                    first_date:
+                                      values.singular_payment_object.first_date,
+                                    payment:
+                                      values.singular_payment_object.payment
+                                  };
+                                  values.singular_payment.push(data);
+                                  setFieldValue(
+                                    "singular_payment",
+                                    values.singular_payment
+                                  );
+                                  setState({
+                                    ...state,
+                                    singularPayment: false
+                                  });
+                                  setFieldValue(
+                                    "singular_payment_object",
+                                    null,
+                                    false
+                                  );
+                                  setFieldValue(
+                                    "singular_payment_object",
+                                    null,
+                                    false
+                                  );
+                                  setFieldTouched(
+                                    "singular_payment_object.payment",
+                                    false
+                                  );
+                                  setFieldTouched(
+                                    "singular_payment_object.first_date",
+                                    false
+                                  );
+                                }
+                              }}
+                              variant="info"
+                              style={{
+                                backgroundColor: "#d5e4f2",
+                                color: "#4a4972",
+                                border: "none"
+                              }}
+                            >
+                              Agregar Cargo Individual
+                            </Button>
+                          </Form.Group>
+                        </Card.Body>
+                      )}
+                    </div>
                   </Collapse>
-                  <hr></hr>
-                  <h5 className="text-center">
-                    Historial de Cargos Individuales
-                  </h5>
-                  <hr></hr>
-                  <Table responsive="sm" bordered variant="light" hover>
-                    <thead>
-                      <tr>
-                        <th>Monto</th>
-                        <th>Fecha</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td> 200 Lps. </td>
-                        <td> 02/20/2019 </td>
-                        <td>
-                          <Row className="d-flex justify-content-around">
-                            <DModal
-                              text="Estás seguro que deseas eliminar este cargo?"
-                              modalType={2}
-                              handleAffirmation={() => {
-                                console.log("borre el cargo");
-                              }}
-                            />
-                          </Row>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td> 400 Lps. </td>
-                        <td> 02/20/2019 </td>
-                        <td>
-                          <Row className="d-flex justify-content-around">
-                            <DModal
-                              text="Estás seguro que deseas eliminar este cargo?"
-                              modalType={2}
-                              handleAffirmation={() => {
-                                console.log("borre el cargo");
-                              }}
-                            />
-                          </Row>
-                        </td>
-                      </tr>
-                      {/* {kids.map((kid, index) => (
-                            <tr key={index}>
-                              <td> {index + 1} </td>
-                              <td> {kid.names} </td>
-                              <td> {kid.last_names} </td>
-                              <td>
-                                <Row className="d-flex justify-content-around">
-                                  <DModal
-                                    index={index}
-                                    ref={deleteModal}
-                                    text="Estás seguro que deseas eliminar este cargo?"
-                                    modalType={2}
-                                    handleAffirmation={() => {
-                                      deleteKid(kid._id);
-                                    }}
-                                  />
-                                </Row>
-                              </td>
-                            </tr>
-                          ))} */}
-                    </tbody>
-                  </Table>
+                  {values.singular_payment.length > 0 && (
+                    <Card.Body>
+                      <Alert
+                        style={{
+                          backgroundColor: "#d5e4f2",
+                          color: "#4a4972",
+                          border: "none"
+                        }}
+                        variant="dark"
+                      >
+                        <h5 style={{ marginBottom: 0 }} className="text-center">
+                          Lista de Cargos Individuales
+                        </h5>
+                      </Alert>
+                      <Table responsive="sm" bordered variant="light" hover>
+                        <thead>
+                          <tr>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {values.singular_payment.map(
+                            (singular_payment, index) => (
+                              <tr key={index}>
+                                <td> {singular_payment.payment} Lps. </td>
+                                <td>
+                                  {" "}
+                                  {singular_payment.first_date
+                                    .toLocaleDateString("en-GB", {
+                                      day: "numeric",
+                                      month: "short",
+                                      year: "numeric"
+                                    })
+                                    .replace(/ /g, "-")}{" "}
+                                </td>
+                                <td>
+                                  <Row className="d-flex justify-content-around">
+                                    <DModal
+                                      text="Estás seguro que deseas eliminar este cargo?"
+                                      modalType={2}
+                                      handleAffirmation={singular_payment => {
+                                        console.log(singular_payment);
+                                        console.log("borre el cargo");
+                                      }}
+                                    />
+                                  </Row>
+                                </td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </Table>
+                    </Card.Body>
+                  )}
                 </Card>
                 <br />
                 {validation !== "" && (

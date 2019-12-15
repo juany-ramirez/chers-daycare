@@ -21,7 +21,7 @@ const KidsSchema = mongoose.Schema({
         default: [],
         required: true
     },
-    monthly_payment: [{
+    monthly_payment: {
         first_date: {
             type: Date,
             default: '',
@@ -49,7 +49,7 @@ const KidsSchema = mongoose.Schema({
             default: false,
             required: false
         }
-    }],
+    },
     singular_payment: [{
         first_date: {
             type: Date,
