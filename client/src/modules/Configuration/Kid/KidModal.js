@@ -13,7 +13,8 @@ import {
   Collapse,
   Table,
   Alert,
-  Spinner
+  Spinner,
+  InputGroup
 } from "react-bootstrap";
 import {
   EditRoundButton,
@@ -53,7 +54,18 @@ const KidModal = props => {
           .required("Fecha de inicio es requerida."),
         second_date: Yup.date()
           .typeError("Debe especificar fecha final.")
+          .when("first_date", (st, schema) => {
+            return Yup.date().min(
+              st,
+              "Fecha final debe ser despues de la fecha inicial."
+            );
+          })
           .required("Fecha final es requerida."),
+        due_date: Yup.number()
+          .min(1, "Fecha debe ser entre los dias disponibles del mes (1-28).")
+          .max(28, "Fecha debe ser entre los dias disponibles del mes (1-28).")
+          .typeError("Debe especificar una fecha.")
+          .required("Fecha requerida"),
         payment: Yup.number()
           .min(0, "Monto debe ser mayor o igual a cero.")
           .typeError("Debe especificar un monto.")
@@ -80,6 +92,7 @@ const KidModal = props => {
   });
 
   useEffect(() => {
+    setState({ ...state, monthlyPayment: false, singularPayment: false });
     getParents();
     // eslint-disable-next-line
   }, []);
@@ -209,17 +222,20 @@ const KidModal = props => {
               last_names: props.kid.last_names,
               profiles: props.kid.profiles,
               tags: props.kid.tags,
-              monthly_payment:
-                props.kid.monthly_payment.second_date === ""
-                  ? null
-                  : {
-                      first_date: props.kid.monthly_payment.first_date,
-                      second_date: props.kid.monthly_payment.second_date,
-                      payment: props.kid.monthly_payment.payment,
-                      payed: props.kid.monthly_payment.payed,
-                      done: props.kid.monthly_payment.done
-                    },
-              singular_payment_object: null,
+              monthly_payment: {
+                first_date: props.kid.monthly_payment.first_date,
+                second_date: props.kid.monthly_payment.second_date,
+                payment: props.kid.monthly_payment.payment,
+                payed: props.kid.monthly_payment.payed,
+                done: props.kid.monthly_payment.done,
+                due_date: props.kid.monthly_payment.due_date
+              },
+              singular_payment_object: {
+                first_date: props.kid.monthly_payment.first_date,
+                payment: props.kid.monthly_payment.payment,
+                payed: props.kid.monthly_payment.payed,
+                done: props.kid.monthly_payment.done
+              },
               singular_payment: props.kid.singular_payment,
               parents: props.kid.parents
             }}
@@ -380,7 +396,6 @@ const KidModal = props => {
                             aria-controls="monthly-form"
                             aria-expanded={state.monthlyPayment}
                             handleClick={() => {
-                              setState({ ...state, monthlyPayment: true });
                               setFieldValue(
                                 "monthly_payment.first_date",
                                 false,
@@ -393,9 +408,15 @@ const KidModal = props => {
                               );
                               setFieldValue(
                                 "monthly_payment.payment",
-                                false,
+                                "",
                                 false
                               );
+                              setFieldValue(
+                                "monthly_payment.due_date",
+                                "",
+                                false
+                              );
+                              setState({ ...state, monthlyPayment: true });
                             }}
                           />
                         )}
@@ -415,6 +436,10 @@ const KidModal = props => {
                                 false
                               );
                               setFieldTouched("monthly_payment.payment", false);
+                              setFieldTouched(
+                                "monthly_payment.due_date",
+                                false
+                              );
                             }}
                           />
                         )}
@@ -425,57 +450,34 @@ const KidModal = props => {
                     <div>
                       {state.monthlyPayment && (
                         <Card.Body id="monthly-form">
-                          <Form.Group controlId="formMonthlyStartDate">
+                          <Form.Group>
                             <Form.Label>Rango de Meses: </Form.Label>
                             <br></br>
-                            <DatePicker
-                              id="monthly_payment.first_date"
-                              name="monthly_payment.first_date"
-                              onBlur={handleBlur}
-                              placeholderText="Fecha de inicio"
-                              selected={values.monthly_payment.first_date}
-                              onChange={date => {
-                                setFieldTouched(
-                                  "monthly_payment.first_date",
-                                  true
-                                );
-                                setFieldValue(
-                                  "monthly_payment.first_date",
-                                  date
-                                );
-                              }}
-                              selectsStart
-                              value={values.monthly_payment.first_date}
-                              startDate={values.monthly_payment.first_date}
-                              endDate={values.monthly_payment.second_date}
-                              dateFormat="MM/yyyy"
-                              showMonthYearPicker
-                            />
-                            <DatePicker
-                              id="monthly_payment.second_date"
-                              name="monthly_payment.second_date"
-                              onBlur={handleBlur}
-                              placeholderText="Fecha de final"
-                              selected={values.monthly_payment.second_date}
-                              onChange={date => {
-                                setFieldTouched(
-                                  "monthly_payment.second_date",
-                                  true
-                                );
-                                setFieldValue(
-                                  "monthly_payment.second_date",
-                                  date
-                                );
-                              }}
-                              selectsEnd
-                              value={values.monthly_payment.second_date}
-                              startDate={values.monthly_payment.first_date}
-                              endDate={values.monthly_payment.second_date}
-                              dateFormat="MM/yyyy"
-                              showMonthYearPicker
-                            />
                             <Row>
                               <Col>
+                                <DatePicker
+                                  id="monthly_payment.first_date"
+                                  name="monthly_payment.first_date"
+                                  onBlur={handleBlur}
+                                  placeholderText="Fecha de inicio"
+                                  selected={values.monthly_payment.first_date}
+                                  onChange={date => {
+                                    setFieldTouched(
+                                      "monthly_payment.first_date",
+                                      true
+                                    );
+                                    setFieldValue(
+                                      "monthly_payment.first_date",
+                                      date
+                                    );
+                                  }}
+                                  selectsStart
+                                  value={values.monthly_payment.first_date}
+                                  startDate={values.monthly_payment.first_date}
+                                  endDate={values.monthly_payment.second_date}
+                                  dateFormat="MM/yyyy"
+                                  showMonthYearPicker
+                                />
                                 <ErrorMessage
                                   component="div"
                                   name="monthly_payment.first_date"
@@ -483,6 +485,29 @@ const KidModal = props => {
                                 />
                               </Col>
                               <Col>
+                                <DatePicker
+                                  id="monthly_payment.second_date"
+                                  name="monthly_payment.second_date"
+                                  onBlur={handleBlur}
+                                  placeholderText="Fecha de final"
+                                  selected={values.monthly_payment.second_date}
+                                  onChange={date => {
+                                    setFieldTouched(
+                                      "monthly_payment.second_date",
+                                      true
+                                    );
+                                    setFieldValue(
+                                      "monthly_payment.second_date",
+                                      date
+                                    );
+                                  }}
+                                  selectsEnd
+                                  value={values.monthly_payment.second_date}
+                                  startDate={values.monthly_payment.first_date}
+                                  endDate={values.monthly_payment.second_date}
+                                  dateFormat="MM/yyyy"
+                                  showMonthYearPicker
+                                />
                                 <ErrorMessage
                                   component="div"
                                   name="monthly_payment.second_date"
@@ -491,22 +516,53 @@ const KidModal = props => {
                               </Col>
                             </Row>
                           </Form.Group>
-                          <Form.Group controlId="formMonthlyPayment">
-                            <Form.Label>Mensualidad: </Form.Label>
-                            <Form.Control
-                              type="number"
-                              name="monthly_payment.payment"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              value={values.monthly_payment.payment}
-                              placeholder="Ingresar mensualidad"
-                            />
-                            <ErrorMessage
-                              component="div"
-                              name="monthly_payment.payment"
-                              className="text-muted"
-                            />
-                          </Form.Group>
+                          <Row>
+                            <Col>
+                              <Form.Group>
+                                <Form.Label>Mensualidad: </Form.Label>
+                                <InputGroup>
+                                  <InputGroup.Prepend>
+                                    <InputGroup.Text id="inputGroupPrepend">
+                                      Lps.
+                                    </InputGroup.Text>
+                                  </InputGroup.Prepend>
+                                  <Form.Control
+                                    type="number"
+                                    id="monthly_payment.payment"
+                                    name="monthly_payment.payment"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value={values.monthly_payment.payment}
+                                    placeholder="Ingresar mensualidad"
+                                  />
+                                </InputGroup>
+                                <ErrorMessage
+                                  component="div"
+                                  name="monthly_payment.payment"
+                                  className="text-muted"
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col>
+                              <Form.Group>
+                                <Form.Label>Fecha del Mes: </Form.Label>
+                                <Form.Control
+                                  type="number"
+                                  id="monthly_payment.due_date"
+                                  name="monthly_payment.due_date"
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  value={values.monthly_payment.due_date}
+                                  placeholder="Fecha entre los días del 1-28 (número)"
+                                />
+                                <ErrorMessage
+                                  component="div"
+                                  name="monthly_payment.due_date"
+                                  className="text-muted"
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
                         </Card.Body>
                       )}
                     </div>
@@ -533,7 +589,6 @@ const KidModal = props => {
                             aria-controls="singular-payment-form"
                             aria-expanded={state.monthlyPayment}
                             handleClick={() => {
-                              setState({ ...state, singularPayment: true });
                               setFieldValue(
                                 "singular_payment_object.first_date",
                                 false,
@@ -541,9 +596,10 @@ const KidModal = props => {
                               );
                               setFieldValue(
                                 "singular_payment_object.payment",
-                                false,
+                                "",
                                 false
                               );
+                              setState({ ...state, singularPayment: true });
                             }}
                           />
                         )}
@@ -609,14 +665,21 @@ const KidModal = props => {
                           </Form.Group>
                           <Form.Group controlId="formsingularPayment">
                             <Form.Label>Monto: </Form.Label>
-                            <Form.Control
-                              type="number"
-                              name="singular_payment_object.payment"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              value={values.singular_payment_object.payment}
-                              placeholder="Ingresar monto total"
-                            />
+                            <InputGroup>
+                              <InputGroup.Prepend>
+                                <InputGroup.Text id="inputGroupPrepend">
+                                  Lps.
+                                </InputGroup.Text>
+                              </InputGroup.Prepend>
+                              <Form.Control
+                                type="number"
+                                name="singular_payment_object.payment"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                value={values.singular_payment_object.payment}
+                                placeholder="Ingresar monto total"
+                              />
+                            </InputGroup>
                             <ErrorMessage
                               component="div"
                               name="singular_payment_object.payment"
@@ -633,11 +696,7 @@ const KidModal = props => {
                                   "singular_payment_object.payment",
                                   true
                                 );
-                                console.log(errors);
-                                
-                                if (
-                                  !errors.singular_payment_object
-                                ) {
+                                if (!errors.singular_payment_object) {
                                   let data = {
                                     first_date:
                                       values.singular_payment_object.first_date,
@@ -653,11 +712,6 @@ const KidModal = props => {
                                     ...state,
                                     singularPayment: false
                                   });
-                                  setFieldValue(
-                                    "singular_payment_object",
-                                    null,
-                                    false
-                                  );
                                   setFieldValue(
                                     "singular_payment_object",
                                     null,

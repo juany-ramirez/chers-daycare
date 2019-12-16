@@ -32,6 +32,13 @@ const KidsSchema = mongoose.Schema({
             default: '',
             required: false
         },
+        due_date:{
+            type: Number,
+            default: 1,
+            min: 0,
+            max: 31,
+            required: false
+        },
         payment: {
             type: Number,
             default: 0,

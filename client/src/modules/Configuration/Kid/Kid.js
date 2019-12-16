@@ -15,6 +15,7 @@ const Kid = props => {
     loading: true,
     kids: []
   });
+  
   const [smShow, setSmShow] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -29,6 +30,7 @@ const Kid = props => {
       first_date: "",
       second_date: "",
       payment: "",
+      due_date: 1,
       payed: 0,
       done: true
     },
