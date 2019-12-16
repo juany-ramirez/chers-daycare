@@ -54,12 +54,6 @@ const KidModal = props => {
           .required("Fecha de inicio es requerida."),
         second_date: Yup.date()
           .typeError("Debe especificar fecha final.")
-          .when("first_date", (st, schema) => {
-            return Yup.date().min(
-              st,
-              "Fecha final debe ser despues de la fecha inicial."
-            );
-          })
           .required("Fecha final es requerida."),
         due_date: Yup.number()
           .min(1, "Fecha debe ser entre los dias disponibles del mes (1-28).")
@@ -175,7 +169,6 @@ const KidModal = props => {
         if (response.data.success) {
           setMessage("Se ha actualizado el Usuario");
           setSmShow(true);
-          props.isCreated();
         } else {
           setMessage("Lo sentimos, ha ocurrido un error :(");
           setSmShow(true);
@@ -222,20 +215,18 @@ const KidModal = props => {
               last_names: props.kid.last_names,
               profiles: props.kid.profiles,
               tags: props.kid.tags,
-              monthly_payment: {
-                first_date: props.kid.monthly_payment.first_date,
-                second_date: props.kid.monthly_payment.second_date,
-                payment: props.kid.monthly_payment.payment,
-                payed: props.kid.monthly_payment.payed,
-                done: props.kid.monthly_payment.done,
-                due_date: props.kid.monthly_payment.due_date
-              },
-              singular_payment_object: {
-                first_date: props.kid.monthly_payment.first_date,
-                payment: props.kid.monthly_payment.payment,
-                payed: props.kid.monthly_payment.payed,
-                done: props.kid.monthly_payment.done
-              },
+              monthly_payment:
+                props.kid.monthly_payment.second_date === ""
+                  ? null
+                  : {
+                      first_date: props.kid.monthly_payment.first_date,
+                      second_date: props.kid.monthly_payment.second_date,
+                      payment: props.kid.monthly_payment.payment,
+                      payed: props.kid.monthly_payment.payed,
+                      done: props.kid.monthly_payment.done,
+                      due_date: props.kid.monthly_payment.due_date
+                    },
+              singular_payment_object: null,
               singular_payment: props.kid.singular_payment,
               parents: props.kid.parents
             }}

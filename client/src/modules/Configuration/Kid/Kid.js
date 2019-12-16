@@ -56,14 +56,6 @@ const Kid = props => {
       });
   };
 
-  const kidEdited = () => {
-    getKids();
-  };
-
-  const kidCreated = () => {
-    getKids();
-  };
-
   const getKids = () => {
     axios
       .get(`${process.env.REACT_APP_NODE_API}/api/kids`)
@@ -118,8 +110,6 @@ const Kid = props => {
                                     type="edit"
                                     title="Editar usuario"
                                     kid={kid}
-                                    isEdited={ () => { kidEdited() } }
-                                    isCreated={ () => { kidCreated() } }
                                 /> */}
                     <DModal
                       index={index}
