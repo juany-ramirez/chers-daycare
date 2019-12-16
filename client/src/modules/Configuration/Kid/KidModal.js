@@ -50,10 +50,10 @@ const KidModal = props => {
       .nullable()
       .shape({
         first_date: Yup.date()
-          .typeError("Debe especificar fecha de inicio.")
-          .required("Fecha de inicio es requerida."),
+          .typeError("Fecha de inicio inválida, fecha debe ser antes que la fecha final.")
+          .required("Debe especificar fecha de inicio."),
         second_date: Yup.date()
-          .typeError("Debe especificar fecha final.")
+          .typeError("Fecha final inválida, escoger fecha posterior a fecha inicial.")
           .required("Fecha final es requerida."),
         due_date: Yup.number()
           .min(1, "Fecha debe ser entre los dias disponibles del mes (1-28).")
@@ -215,18 +215,24 @@ const KidModal = props => {
               last_names: props.kid.last_names,
               profiles: props.kid.profiles,
               tags: props.kid.tags,
-              monthly_payment:
-                props.kid.monthly_payment.second_date === ""
-                  ? null
-                  : {
-                      first_date: props.kid.monthly_payment.first_date,
-                      second_date: props.kid.monthly_payment.second_date,
-                      payment: props.kid.monthly_payment.payment,
-                      payed: props.kid.monthly_payment.payed,
-                      done: props.kid.monthly_payment.done,
-                      due_date: props.kid.monthly_payment.due_date
-                    },
-              singular_payment_object: null,
+              monthly_payment: !state.monthlyPayment
+                ? null
+                : {
+                    first_date: props.kid.monthly_payment.first_date,
+                    second_date: props.kid.monthly_payment.second_date,
+                    payment: props.kid.monthly_payment.payment,
+                    payed: props.kid.monthly_payment.payed,
+                    done: props.kid.monthly_payment.done,
+                    due_date: props.kid.monthly_payment.due_date
+                  },
+              singular_payment_object: !state.singularPayment
+                ? null
+                : {
+                    first_date: props.kid.singular_payment_object.first_date,
+                    payment: props.kid.singular_payment_object.payment,
+                    payed: props.kid.singular_payment_object.payed,
+                    done: props.kid.singular_payment_object.done
+                  },
               singular_payment: props.kid.singular_payment,
               parents: props.kid.parents
             }}
@@ -243,7 +249,8 @@ const KidModal = props => {
               handleSubmit,
               isSubmitting,
               setFieldValue,
-              setFieldTouched
+              setFieldTouched,
+              setFieldError
               /* and other goodies */
             }) => (
               <Form onSubmit={handleSubmit}>
@@ -453,14 +460,26 @@ const KidModal = props => {
                                   placeholderText="Fecha de inicio"
                                   selected={values.monthly_payment.first_date}
                                   onChange={date => {
-                                    setFieldTouched(
-                                      "monthly_payment.first_date",
-                                      true
-                                    );
-                                    setFieldValue(
-                                      "monthly_payment.first_date",
-                                      date
-                                    );
+                                    if (
+                                      values.monthly_payment.second_date &&
+                                      values.monthly_payment.second_date.getTime() <
+                                        date.getTime()
+                                    ) {
+                                      setFieldValue(
+                                        "monthly_payment.first_date",
+                                        false
+                                      );
+                                    } else{
+                                      setFieldTouched(
+                                        "monthly_payment.first_date",
+                                        true
+                                      );
+                                      setFieldValue(
+                                        "monthly_payment.first_date",
+                                        date
+                                      );
+
+                                    }
                                   }}
                                   selectsStart
                                   value={values.monthly_payment.first_date}
@@ -483,14 +502,25 @@ const KidModal = props => {
                                   placeholderText="Fecha de final"
                                   selected={values.monthly_payment.second_date}
                                   onChange={date => {
-                                    setFieldTouched(
-                                      "monthly_payment.second_date",
-                                      true
-                                    );
-                                    setFieldValue(
-                                      "monthly_payment.second_date",
-                                      date
-                                    );
+                                    if (
+                                      values.monthly_payment.first_date &&
+                                      values.monthly_payment.first_date.getTime() >
+                                        date.getTime()
+                                    ) {
+                                      setFieldValue(
+                                        "monthly_payment.second_date",
+                                        false
+                                      );
+                                    } else {
+                                      setFieldTouched(
+                                        "monthly_payment.second_date",
+                                        true
+                                      );
+                                      setFieldValue(
+                                        "monthly_payment.second_date",
+                                        date
+                                      );
+                                    }
                                   }}
                                   selectsEnd
                                   value={values.monthly_payment.second_date}

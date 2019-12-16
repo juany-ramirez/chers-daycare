@@ -30,7 +30,13 @@ const Kid = props => {
       first_date: "",
       second_date: "",
       payment: "",
-      due_date: 1,
+      due_date: "",
+      payed: 0,
+      done: true
+    },
+    singular_payment_object: {
+      first_date: "",
+      payment: "",
       payed: 0,
       done: true
     },
