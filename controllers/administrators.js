@@ -18,8 +18,8 @@ module.exports = {
     createAdministrator: async (req, res, next) => {
         const administrator = new Administrator({
             user_id: req.body.user_id,
-            courses: req.body.courses,
-            posted_publications: req.body.posted_publications
+            courses: [...req.body.courses],
+            posted_publications: [...req.body.posted_publications]
         });
         administrator.save().then((administrator) => {
             res.send({ success: true, data: administrator });
@@ -40,8 +40,8 @@ module.exports = {
                 $set:
                 {
                     user_id: req.body.user_id,
-                    courses: req.body.courses,
-                    posted_publications: req.body.posted_publications
+                    courses: [...req.body.courses],
+                    posted_publications: [...req.body.posted_publications]
                 }
             }).then((administrator) => {
                 res.send({ success: true, data: administrator });

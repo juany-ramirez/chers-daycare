@@ -26,11 +26,6 @@ const ParentSchema = mongoose.Schema({
             default: 1,
             min: 1,
             required: false
-        },
-        kidPayment: {
-            type: mongoose.Schema.Types.ObjectId,
-            default: null,
-            required: false
         }
     }],
 });

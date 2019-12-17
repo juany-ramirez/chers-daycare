@@ -1,59 +1,18 @@
-const express =  require('express');
-const router = express.Router();
-const Parent = require('../models/Parent');
+const express = require("express");
+const router = require("express-promise-router")();
+const passport = require("passport");
+const parentController = require("../controllers/parents");
 
-router.get('/', (req, res) => {
-    Parent.find().then((parents) => {
-        res.send({success:true, data:parents});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+const passportJWT = passport.authenticate("jwt", { session: false });
 
-router.get('/:id', (req, res) => {
-    Parent.findById(req.params.id).then((parent) => {
-        res.send({success:true, data:parent});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+router.route("/").get(passportJWT, parentController.getParents);
 
-router.post('/', (req, res) => {
-    const parent = new Parent({
-        user_id: req.body.user_id,
-        kids: req.body.kids,
-        notifications: req.body.notifications,
-        payments: req.body.payments
-    });
-    parent.save().then((parent) => {
-        res.send({success:true, data:parent});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+router.route("/:id").get(passportJWT, parentController.getParent);
 
-router.delete('/:id', (req, res) => {
-    Parent.deleteOne({_id: req.params.id}).then((parent) => {
-        res.send({success:true, data:parent});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+router.route("/").post(passportJWT, parentController.createParent);
 
-router.put('/:id', (req, res) => {
-    Parent.updateOne({_id: req.params.id}, 
-        { $set: 
-            {
-                user_id: req.body.user_id,
-                kids: req.body.kids,
-                notifications: req.body.notifications,
-                payments: req.body.payments
-            }
-    }).then((parent) => {
-        res.send({success:true, data:parent});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+router.route("/:id").delete(passportJWT, parentController.deleteParent);
 
-module.exports  = router;
+router.route("/:id").put(passportJWT, parentController.updateParent);
+
+module.exports = router;

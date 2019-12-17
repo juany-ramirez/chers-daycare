@@ -1,57 +1,18 @@
-const express =  require('express');
-const router = express.Router();
-const Caretaker = require('../models/Caretaker');
+const express = require("express");
+const router = require("express-promise-router")();
+const passport = require("passport");
+const caretakerController = require("../controllers/caretakers");
 
-router.get('/', (req, res) => {
-    Caretaker.find().then((caretakers) => {
-        res.send({success:true, data:caretakers});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+const passportJWT = passport.authenticate("jwt", { session: false });
 
-router.get('/:id', (req, res) => {
-    Caretaker.findById(req.params.id).then((caretaker) => {
-        res.send({success:true, data:caretaker});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+router.route("/").get(passportJWT, caretakerController.getCaretakers);
 
-router.post('/', (req, res) => {
-    const caretaker = new Caretaker({
-        user_id: req.body.user_id,
-        courses: req.body.courses,
-        posted_publications: req.body.posted_publications
-    });
-    caretaker.save().then((caretaker) => {
-        res.send({success:true, data:caretaker});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+router.route("/:id").get(passportJWT, caretakerController.getCaretaker);
 
-router.delete('/:id', (req, res) => {
-    Caretaker.deleteOne({_id: req.params.id}).then((caretaker) => {
-        res.send({success:true, data:caretaker});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+router.route("/").post(passportJWT, caretakerController.createCaretaker);
 
-router.put('/:id', (req, res) => {
-    Caretaker.updateOne({_id: req.params.id}, 
-        { $set: 
-            {
-                user_id: req.body.user_id,
-                courses: req.body.courses,
-                posted_publications: req.body.posted_publications
-            }
-    }).then((caretaker) => {
-        res.send({success:true, data:caretaker});
-    }).catch((err) =>
-        res.status(422).send({success:false, error:err.message})
-    );
-});
+router.route("/:id").delete(passportJWT, caretakerController.deleteCaretaker);
 
-module.exports  = router;
+router.route("/:id").put(passportJWT, caretakerController.updateCaretaker);
+
+module.exports = router;

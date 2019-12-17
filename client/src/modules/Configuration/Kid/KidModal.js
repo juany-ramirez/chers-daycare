@@ -146,7 +146,7 @@ const KidModal = props => {
     // }
   };
 
-  const createUser = (values, { resetForm }) => {
+  const createKid = (values, { resetForm }) => {
     values.monthly_payment = values.monthly_payment
       ? values.monthly_payment
       : {};
@@ -177,17 +177,18 @@ const KidModal = props => {
       });
   };
 
-  const modifyUser = values => {
+  const modifyKid = values => {
     const kid = props.kid;
     console.log(kid);
     kid.names = values.names;
     kid.last_names = values.last_names;
     kid.profiles = values.profiles;
-    kid.phone = values.phone;
-    kid.rol = values.rol;
+    kid.monthly_payment = values.monthly_payment;
+    kid.singular_payment = values.singular_payment;
+    kid.parents = values.parents;
     console.log(kid);
     axios
-      .put(`${process.env.REACT_APP_NODE_API}/api/auth/kids/${kid._id}`, kid)
+      .put(`${process.env.REACT_APP_NODE_API}/api/kids/${kid._id}`, kid)
       .then(response => {
         console.log(response);
         if (response.data.success) {
@@ -207,8 +208,8 @@ const KidModal = props => {
   const submitForm = (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
     props.type === "create"
-      ? createUser(values, { resetForm })
-      : modifyUser(values, { resetForm });
+      ? createKid(values, { resetForm })
+      : modifyKid(values, { resetForm });
     setSubmitting(false);
   };
   const fileRef = useRef();

@@ -19,8 +19,8 @@ module.exports = {
     createCaretaker: async (req, res, next) => {
         const caretaker = new Caretaker({
             user_id: req.body.user_id,
-            courses: req.body.courses,
-            posted_publications: req.body.posted_publications
+            courses: [...req.body.courses],
+            posted_publications: [...req.body.posted_publications]
         });
         caretaker.save().then((caretaker) => {
             res.send({ success: true, data: caretaker });
@@ -41,8 +41,8 @@ module.exports = {
                 $set:
                 {
                     user_id: req.body.user_id,
-                    courses: req.body.courses,
-                    posted_publications: req.body.posted_publications
+                    courses: [...req.body.courses],
+                    posted_publications: [...req.body.posted_publications]
                 }
             }).then((caretaker) => {
                 res.send({ success: true, data: caretaker });
