@@ -5,6 +5,9 @@ import KidModal from "./KidModal";
 import { PrimaryHeaderLarge, DButton } from "../../../components";
 import { Table, Spinner, Row, Modal, Button } from "react-bootstrap";
 import { KidContext } from "../../../contexts/KidContext";
+import BootstrapTable from "react-bootstrap-table-next";
+import paginationFactory from "react-bootstrap-table2-paginator";
+import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
 import "./Kid.scss";
 
 const Kid = props => {
@@ -15,7 +18,7 @@ const Kid = props => {
     loading: true,
     kids: []
   });
-  
+
   const [smShow, setSmShow] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -43,6 +46,70 @@ const Kid = props => {
     singular_payment: [],
     parents: []
   };
+
+  const { SearchBar } = Search;
+  const paginationOptions = {
+    paginationSize: 5, // the pagination bar size, default is 5
+    sizePerPageList: [
+      3,
+      5,
+      10,
+      {
+        text: "Todos",
+        value: kids.length
+      }
+    ], // A numeric array is also available: [5, 10]. the purpose of above example is custom the text
+    withFirstAndLast: false, // hide the going to first and last page button
+    alwaysShowAllBtns: true, // always show the next and previous page button
+    firstPageText: "First", // the text of first page button
+    prePageText: "Prev", // the text of previous page button
+    nextPageText: "Sig" // the text of next page button
+  };
+
+  const actionFormatter = (cell, row, rowIndex) => {
+    console.log(row);
+
+    return (
+      <div className="action-wrapper">
+        <KidModal
+          index={rowIndex}
+          type="edit"
+          title="Editar usuario"
+          kid={row}
+        />
+        <DModal
+          index={rowIndex}
+          ref={deleteModal}
+          text="¿Seguro que deseas eliminar este usuario?"
+          modalType={2}
+          handleAffirmation={() => {
+            deleteKid(row._id);
+          }}
+        />
+      </div>
+    );
+  };
+
+  const columns = [
+    {
+      dataField: "names",
+      text: "Nombres",
+      classes: "capitalized-initial",
+      sort: true
+    },
+    {
+      dataField: "last_names",
+      text: "Apellidos",
+      classes: "capitalized-initial",
+      sort: true
+    },
+    {
+      dataField: "link",
+      text: "Acción",
+      classes: "table-action",
+      formatter: actionFormatter
+    }
+  ];
 
   const deleteKid = id => {
     axios
@@ -82,9 +149,9 @@ const Kid = props => {
 
   let loadingContent = (
     <div className="container text-center">
-    <Spinner animation="grow" variant="light" />
-    <Spinner animation="grow" variant="light" />
-    <Spinner animation="grow" variant="light" />
+      <Spinner animation="grow" variant="light" />
+      <Spinner animation="grow" variant="light" />
+      <Spinner animation="grow" variant="light" />
     </div>
   );
 
@@ -94,44 +161,27 @@ const Kid = props => {
         <PrimaryHeaderLarge title="Niños" />
         <KidModal type="create" title="Agregar Niño" kid={emptyKid} />
         <br />
-        <Table responsive="sm" striped bordered variant="light" hover>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Nombre</th>
-              <th>Apellido</th>
-            </tr>
-          </thead>
-          <tbody>
-            {kids.map((kid, index) => (
-              <tr key={index}>
-                <td> {index + 1} </td>
-                <td> {kid.names} </td>
-                <td> {kid.last_names} </td>
-                <td>
-                  <Row className="d-flex justify-content-around">
-                    {/*
-                    <KidModal
-                                    index={index}
-                                    type="edit"
-                                    title="Editar usuario"
-                                    kid={kid}
-                                /> */}
-                    <DModal
-                      index={index}
-                      ref={deleteModal}
-                      text="Estás seguro que deseas eliminar este usuario?"
-                      modalType={2}
-                      handleAffirmation={() => {
-                        deleteKid(kid._id);
-                      }}
-                    />
-                  </Row>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+
+        <ToolkitProvider
+          keyField="_id"
+          data={kids}
+          columns={columns}
+          search
+          bootstrap4
+        >
+          {props => (
+            <div>
+              <SearchBar {...props.searchProps} />
+              <hr />{" "}
+              <BootstrapTable
+                classes="table table-light table-striped table-bordered table-hover"
+                pagination={paginationFactory(paginationOptions)}
+                wrapperClasses="table-responsive"
+                {...props.baseProps}
+              />
+            </div>
+          )}
+        </ToolkitProvider>
         <Modal
           size="sm"
           show={smShow}

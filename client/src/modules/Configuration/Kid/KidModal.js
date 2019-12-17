@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Formik, ErrorMessage, Field } from "formik";
+import React, { useState, useEffect, useRef } from "react";
+import { Formik, ErrorMessage } from "formik";
 import DatePicker from "react-datepicker";
 import * as Yup from "yup";
 import axios from "axios";
+import { ImageCropper, HiddenCropper } from "react-bootstrap-image-cropper";
 import {
   Modal,
   Form,
@@ -50,10 +51,14 @@ const KidModal = props => {
       .nullable()
       .shape({
         first_date: Yup.date()
-          .typeError("Fecha de inicio inválida, fecha debe ser antes que la fecha final.")
+          .typeError(
+            "Fecha de inicio inválida, fecha debe ser antes que la fecha final."
+          )
           .required("Debe especificar fecha de inicio."),
         second_date: Yup.date()
-          .typeError("Fecha final inválida, escoger fecha posterior a fecha inicial.")
+          .typeError(
+            "Fecha final inválida, escoger fecha posterior a fecha inicial."
+          )
           .required("Fecha final es requerida."),
         due_date: Yup.number()
           .min(1, "Fecha debe ser entre los dias disponibles del mes (1-28).")
@@ -122,6 +127,25 @@ const KidModal = props => {
       });
   };
 
+  const deleteCharge = (index, values) => {
+    values.singular_payment.splice(index, 1);
+    console.log(values.singular_payment);
+
+    return values.singular_payment;
+    // if(singular_payment._id){
+    //   let newValues = values.singular_payment.filter(singlePayment => {
+    //     return singlePayment._id != singular_payment.id;
+    //   });
+    //   return newValues;
+    // } else {
+    //   values.singular_payment.splice(
+    //     index,
+    //     1
+    //   );
+    //   return values.singular_payment;
+    // }
+  };
+
   const createUser = (values, { resetForm }) => {
     values.monthly_payment = values.monthly_payment
       ? values.monthly_payment
@@ -186,6 +210,13 @@ const KidModal = props => {
       ? createUser(values, { resetForm })
       : modifyUser(values, { resetForm });
     setSubmitting(false);
+  };
+  const fileRef = useRef();
+
+  const handleChangeImage = croppedFile => {
+    console.log(croppedFile);
+    console.log(fileRef.current);
+    // croppedFile === fileRef.current
   };
 
   let content = (
@@ -284,7 +315,6 @@ const KidModal = props => {
                       errors.last_names}
                   </Form.Text>
                 </Form.Group>
-
                 <Form.Group controlId="formParents">
                   <Form.Label as="legend" column sm={3}>
                     Padre(s):
@@ -373,6 +403,22 @@ const KidModal = props => {
                       Padre(s) requeridos
                     </Form.Text>
                   )}
+                </Form.Group>
+                <Form.Group controlId="formImageCropper">
+                  <Form.Label>Perfil: </Form.Label>
+                  <br />
+                  <ImageCropper
+                    fileRef={fileRef}
+                    onChange={handleChangeImage}
+                    outputOptions={{
+                      maxWidth: 600,
+                      maxHeight: 600,
+                      quality: 40
+                    }}
+                    cropOptions={{ aspect: 1, maxZoom: 10 }}
+                    displayOptions={{title:'Cortar Imagen',removeButtonText:'Remover',confirmButtonText:'Confirmar'}}
+                    previewOptions={{ width: 150, height: 150, children:'Seleccionar Imagen' }}
+                  />
                 </Form.Group>
                 <Card>
                   <Card.Header>
@@ -469,7 +515,7 @@ const KidModal = props => {
                                         "monthly_payment.first_date",
                                         false
                                       );
-                                    } else{
+                                    } else {
                                       setFieldTouched(
                                         "monthly_payment.first_date",
                                         true
@@ -478,7 +524,6 @@ const KidModal = props => {
                                         "monthly_payment.first_date",
                                         date
                                       );
-
                                     }
                                   }}
                                   selectsStart
@@ -785,12 +830,12 @@ const KidModal = props => {
                         </thead>
                         <tbody>
                           {values.singular_payment.map(
-                            (singular_payment, index) => (
+                            (singularCharge, index) => (
                               <tr key={index}>
-                                <td> {singular_payment.payment} Lps. </td>
+                                <td> {singularCharge.payment} Lps. </td>
                                 <td>
                                   {" "}
-                                  {singular_payment.first_date
+                                  {singularCharge.first_date
                                     .toLocaleDateString("en-GB", {
                                       day: "numeric",
                                       month: "short",
@@ -803,9 +848,12 @@ const KidModal = props => {
                                     <DModal
                                       text="Estás seguro que deseas eliminar este cargo?"
                                       modalType={2}
-                                      handleAffirmation={singular_payment => {
-                                        console.log(singular_payment);
-                                        console.log("borre el cargo");
+                                      loading=""
+                                      handleAffirmation={() => {
+                                        setFieldValue(
+                                          "singular_payment",
+                                          deleteCharge(index, values)
+                                        );
                                       }}
                                     />
                                   </Row>

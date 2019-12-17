@@ -1,14 +1,51 @@
-.nav-options{
-    margin-top: 2rem;
-    border: 5px solid #F2B441;
-    padding: 4px;
-    background: #F2D95E;
-    border-radius: .25rem;
-    border-top-left-radius: 0.25rem;
-    border-top-right-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
-    border-bottom-left-radius: 0.25rem;
-    h4 {
-        margin-top: 4px;
-    }
+.nav-options {
+  margin-top: 2rem;
+  border: 5px solid #f2b441;
+  padding: 4px;
+  background: #f2d95e;
+  border-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+  h4 {
+    margin-top: 4px;
+  }
+}
+.react-bootstrap-table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
+.react-bootstrap-table-pagination {
+  display: flex;
+  text-align: left;
+  .btn-secondary {
+    color: #fff;
+    background-color: #f2b441;
+    border-color: #f2b441;
+  }
+}
+.react-bootstrap-table-page-btns-ul {
+  .page-item.active .page-link {
+    z-index: 1;
+    background-color: #f23c3c;
+    color: white;
+    border-color: #f23c3c;
+  }
+}
+.table-action {
+  .action-wrapper {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: space-around!important;
+  }
+}
+td.capitalized-initial {
+  text-transform: lowercase;
+}
+
+td.capitalized-initial::first-letter {
+  text-transform: uppercase;
 }
