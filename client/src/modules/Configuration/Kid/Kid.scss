@@ -9,6 +9,13 @@
   background-color: #d5e4f2;
   color: #4a4972;
 }
+.image-cropper {
+  img, button {
+    width: 100px !important;
+    height: 100px !important;
+  }
+}
+
 .cd-chip-input {
   .btn {
     margin-left: 5px;

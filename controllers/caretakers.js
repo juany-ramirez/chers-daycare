@@ -3,7 +3,7 @@ const Caretaker = require('../models/Caretaker');
 
 module.exports = {
     getCaretakers: async (req, res, next) => {
-        Caretaker.find().then((caretakers) => {
+        Caretaker.find(req.query).then((caretakers) => {
             res.send({ success: true, data: caretakers });
         }).catch((err) =>
             res.status(422).send({ success: false, error: err.message })

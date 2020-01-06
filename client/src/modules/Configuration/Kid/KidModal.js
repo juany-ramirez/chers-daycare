@@ -3,7 +3,8 @@ import { Formik, ErrorMessage } from "formik";
 import DatePicker from "react-datepicker";
 import * as Yup from "yup";
 import axios from "axios";
-import { ImageCropper, HiddenCropper } from "react-bootstrap-image-cropper";
+import { ImageCropper } from "react-bootstrap-image-cropper";
+import moment from "moment";
 import {
   Modal,
   Form,
@@ -17,13 +18,14 @@ import {
   Spinner,
   InputGroup
 } from "react-bootstrap";
+import { storage } from "../../../firebase";
+import DModal from "../../../components/Modals";
 import {
   EditRoundButton,
   DButton,
   DeleteRoundButton,
   CreateRoundButton
 } from "../../../components";
-import DModal from "../../../components/Modals";
 
 const KidModal = props => {
   const [state, setState] = useState({
@@ -37,6 +39,44 @@ const KidModal = props => {
   const [smShow, setSmShow] = useState(false);
   const [validation, setValidation] = useState("");
   const [message, setMessage] = useState("");
+  const [avatar, setAvatar] = useState("");
+
+  const emptyMonthlyPayment = [
+    {
+      field: "monthly_payment",
+      value: {}
+    },
+    {
+      field: "monthly_payment.first_date",
+      value: ""
+    },
+    {
+      field: "monthly_payment.second_date",
+      value: ""
+    },
+    {
+      field: "monthly_payment.payment",
+      value: ""
+    },
+    {
+      field: "monthly_payment.due_date",
+      value: ""
+    }
+  ];
+  const emptySingularPayment = [
+    {
+      field: "singular_payment_object",
+      value: {}
+    },
+    {
+      field: "monthly_payment.first_date",
+      value: ""
+    },
+    {
+      field: "monthly_payment.payment",
+      value: ""
+    }
+  ];
 
   const ValidationSchema = Yup.object().shape({
     names: Yup.string()
@@ -91,8 +131,16 @@ const KidModal = props => {
   });
 
   useEffect(() => {
-    setState({ ...state, monthlyPayment: false, singularPayment: false });
     getParents();
+    if (props.kid.profiles.length > 0) {
+      setAvatar(props.kid.profiles[0]);      
+    }
+    setState({
+      ...state,
+      monthlyPayment: props.kid.monthly_payment ? false : true,
+      singularPayment: false
+    });
+
     // eslint-disable-next-line
   }, []);
 
@@ -100,7 +148,6 @@ const KidModal = props => {
     axios
       .get(`${process.env.REACT_APP_NODE_API}/api/users?rol=3`)
       .then(response => {
-        console.log(response.data);
         let parents = [],
           selectedParents = [];
         let isSelected;
@@ -129,38 +176,24 @@ const KidModal = props => {
 
   const deleteCharge = (index, values) => {
     values.singular_payment.splice(index, 1);
-    console.log(values.singular_payment);
-
     return values.singular_payment;
-    // if(singular_payment._id){
-    //   let newValues = values.singular_payment.filter(singlePayment => {
-    //     return singlePayment._id != singular_payment.id;
-    //   });
-    //   return newValues;
-    // } else {
-    //   values.singular_payment.splice(
-    //     index,
-    //     1
-    //   );
-    //   return values.singular_payment;
-    // }
   };
 
-  const createKid = (values, { resetForm }) => {
+  const createKid = (values, { resetForm }, firebaseUrl) => {
+    if (firebaseUrl.length > 0) {
+      values.profiles = [];
+      values.profiles.push(firebaseUrl);
+    }
     values.monthly_payment = values.monthly_payment
       ? values.monthly_payment
       : {};
-
     values.singular_payment = values.singular_payment
       ? values.singular_payment
       : [];
-    console.log("VALUES NEW KID", values);
-
     axios
       .post(`${process.env.REACT_APP_NODE_API}/api/kids`, values)
       .then(response => {
         setValidation("");
-        console.log(response);
         if (response.data.success) {
           setState({ ...state, monthlyPayment: false, singularPayment: false });
           resetForm();
@@ -177,20 +210,20 @@ const KidModal = props => {
       });
   };
 
-  const modifyKid = values => {
+  const modifyKid = (values, { resetForm }, firebaseUrl) => {
     const kid = props.kid;
-    console.log(kid);
     kid.names = values.names;
     kid.last_names = values.last_names;
-    kid.profiles = values.profiles;
     kid.monthly_payment = values.monthly_payment;
     kid.singular_payment = values.singular_payment;
     kid.parents = values.parents;
-    console.log(kid);
+    if (firebaseUrl.length > 0) {
+      kid.profiles = [];
+      kid.profiles.push(firebaseUrl);
+    }
     axios
       .put(`${process.env.REACT_APP_NODE_API}/api/kids/${kid._id}`, kid)
       .then(response => {
-        console.log(response);
         if (response.data.success) {
           setMessage("Se ha actualizado el Usuario");
           setSmShow(true);
@@ -203,21 +236,52 @@ const KidModal = props => {
       .catch(error => {
         setValidation("Ha ocurrido un error");
       });
+    resetForm();
   };
 
   const submitForm = (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
-    props.type === "create"
-      ? createKid(values, { resetForm })
-      : modifyKid(values, { resetForm });
+    if (fileRef.current) {
+      const fileName = `post_${moment().format(
+        "MM_DD_YYYY_hmmssa"
+      )}_${values.names.replace(/ /g, "_")}_${values.last_names.replace(
+        / /g,
+        "_"
+      )}`;
+      const uploadTask = storage.ref(`profiles/${fileName}`);
+      let task = uploadTask.put(fileRef.current);
+      task.on(
+        "state_changed",
+        () => {},
+        error => {
+          setValidation("Lo sentimos, ha ocurrido un error :(");
+        },
+        () => {
+          setValidation("");
+          storage
+            .ref("profiles")
+            .child(fileName)
+            .getDownloadURL()
+            .then(firebase_url => {
+              props.type === "create"
+                ? createKid(values, { resetForm }, "")
+                : modifyKid(values, { resetForm }, firebase_url);
+            });
+        }
+      );
+    } else {
+      props.type === "create"
+        ? createKid(values, { resetForm }, "")
+        : modifyKid(values, { resetForm }, "");
+    }
     setSubmitting(false);
   };
   const fileRef = useRef();
 
   const handleChangeImage = croppedFile => {
-    console.log(croppedFile);
-    console.log(fileRef.current);
-    // croppedFile === fileRef.current
+    if(fileRef.current){
+      setAvatar("")
+    }
   };
 
   let content = (
@@ -247,7 +311,7 @@ const KidModal = props => {
               last_names: props.kid.last_names,
               profiles: props.kid.profiles,
               tags: props.kid.tags,
-              monthly_payment: !state.monthlyPayment
+              monthly_payment: !props.kid.monthly_payment
                 ? null
                 : {
                     first_date: props.kid.monthly_payment.first_date,
@@ -257,20 +321,14 @@ const KidModal = props => {
                     done: props.kid.monthly_payment.done,
                     due_date: props.kid.monthly_payment.due_date
                   },
-              singular_payment_object: !state.singularPayment
-                ? null
-                : {
-                    first_date: props.kid.singular_payment_object.first_date,
-                    payment: props.kid.singular_payment_object.payment,
-                    payed: props.kid.singular_payment_object.payed,
-                    done: props.kid.singular_payment_object.done
-                  },
+              singular_payment_object: null,
               singular_payment: props.kid.singular_payment,
               parents: props.kid.parents
             }}
             onSubmit={(values, { setSubmitting, resetForm }) => {
               submitForm(values, { setSubmitting, resetForm });
             }}
+            validator={() => ({})}
           >
             {({
               values,
@@ -334,15 +392,12 @@ const KidModal = props => {
                           onClick={e => {
                             const index = e.target.value;
                             const parent = state.selectedParents[index];
-                            console.log(e.target.value);
                             let valueParents = [...values.parents];
-                            console.log(values.parents);
                             valueParents.splice(
                               valueParents.indexOf(parent._id),
                               1
                             );
                             setFieldValue("parents", valueParents);
-                            console.log(values.parents);
 
                             state.parents.push(parent);
                             state.selectedParents.splice(index, 1);
@@ -380,7 +435,6 @@ const KidModal = props => {
                           onClick={e => {
                             const index = e.target.value;
                             const parent = state.parents[index];
-                            console.log(parent);
                             let valueParents = [...values.parents];
                             state.selectedParents.push(parent);
                             state.parents.splice(index, 1);
@@ -408,18 +462,31 @@ const KidModal = props => {
                 <Form.Group controlId="formImageCropper">
                   <Form.Label>Perfil: </Form.Label>
                   <br />
-                  <ImageCropper
-                    fileRef={fileRef}
-                    onChange={handleChangeImage}
-                    outputOptions={{
-                      maxWidth: 600,
-                      maxHeight: 600,
-                      quality: 40
-                    }}
-                    cropOptions={{ aspect: 1, maxZoom: 10 }}
-                    displayOptions={{title:'Cortar Imagen',removeButtonText:'Remover',confirmButtonText:'Confirmar'}}
-                    previewOptions={{ width: 150, height: 150, children:'Seleccionar Imagen' }}
-                  />
+                  {fileRef && avatar.length>0 && (
+                    <img height="100" width="100" src={avatar} />
+                  )}
+                  <div className="image-cropper">
+                    <ImageCropper
+                      fileRef={fileRef}
+                      onChange={handleChangeImage}
+                      outputOptions={{
+                        width: 300,
+                        height: 300,
+                        quality: 0.4
+                      }}
+                      cropOptions={{ aspect: 1, maxZoom: 10 }}
+                      displayOptions={{
+                        title: "Cortar Imagen",
+                        removeButtonText: "Remover",
+                        confirmButtonText: "Confirmar"
+                      }}
+                      previewOptions={{
+                        maxWidth: "100",
+                        maxHeight: "100",
+                        children: "Seleccionar Imagen"
+                      }}
+                    />
+                  </div>
                 </Form.Group>
                 <Card>
                   <Card.Header>
@@ -441,26 +508,13 @@ const KidModal = props => {
                             aria-controls="monthly-form"
                             aria-expanded={state.monthlyPayment}
                             handleClick={() => {
-                              setFieldValue(
-                                "monthly_payment.first_date",
-                                false,
-                                false
-                              );
-                              setFieldValue(
-                                "monthly_payment.second_date",
-                                false,
-                                false
-                              );
-                              setFieldValue(
-                                "monthly_payment.payment",
-                                "",
-                                false
-                              );
-                              setFieldValue(
-                                "monthly_payment.due_date",
-                                "",
-                                false
-                              );
+                              emptyMonthlyPayment.map(element => {
+                                setFieldValue(
+                                  element.field,
+                                  element.value,
+                                  false
+                                );
+                              });
                               setState({ ...state, monthlyPayment: true });
                             }}
                           />
@@ -472,19 +526,9 @@ const KidModal = props => {
                             handleClick={() => {
                               setState({ ...state, monthlyPayment: false });
                               setFieldValue("monthly_payment", null, false);
-                              setFieldTouched(
-                                "monthly_payment.first_date",
-                                false
-                              );
-                              setFieldTouched(
-                                "monthly_payment.second_date",
-                                false
-                              );
-                              setFieldTouched("monthly_payment.payment", false);
-                              setFieldTouched(
-                                "monthly_payment.due_date",
-                                false
-                              );
+                              emptyMonthlyPayment.forEach((element, index) => {
+                                setFieldTouched(element.field, false);
+                              });
                             }}
                           />
                         )}
@@ -612,7 +656,7 @@ const KidModal = props => {
                             </Col>
                             <Col>
                               <Form.Group>
-                                <Form.Label>Fecha del Mes: </Form.Label>
+                                <Form.Label>Día de pago: </Form.Label>
                                 <Form.Control
                                   type="number"
                                   id="monthly_payment.due_date"
@@ -620,7 +664,7 @@ const KidModal = props => {
                                   onChange={handleChange}
                                   onBlur={handleBlur}
                                   value={values.monthly_payment.due_date}
-                                  placeholder="Fecha entre los días del 1-28 (número)"
+                                  placeholder="Fecha entre los días del 1-28 (ej: 5)"
                                 />
                                 <ErrorMessage
                                   component="div"
@@ -656,16 +700,13 @@ const KidModal = props => {
                             aria-controls="singular-payment-form"
                             aria-expanded={state.monthlyPayment}
                             handleClick={() => {
-                              setFieldValue(
-                                "singular_payment_object.first_date",
-                                false,
-                                false
-                              );
-                              setFieldValue(
-                                "singular_payment_object.payment",
-                                "",
-                                false
-                              );
+                              emptySingularPayment.map(element => {
+                                setFieldValue(
+                                  element.field,
+                                  element.value,
+                                  false
+                                );
+                              });
                               setState({ ...state, singularPayment: true });
                             }}
                           />
@@ -681,14 +722,9 @@ const KidModal = props => {
                                 null,
                                 false
                               );
-                              setFieldTouched(
-                                "singular_payment_object.payment",
-                                false
-                              );
-                              setFieldTouched(
-                                "singular_payment_object.first_date",
-                                false
-                              );
+                              emptySingularPayment.forEach(element => {
+                                setFieldTouched(element.field, false);
+                              });
                             }}
                           />
                         )}
@@ -874,6 +910,7 @@ const KidModal = props => {
                 <DButton
                   disabled={isSubmitting}
                   title={props.type === "edit" ? "Modificar" : "Ingresar"}
+                  onClick={handleSubmit}
                   type="submit"
                 />
                 <Modal

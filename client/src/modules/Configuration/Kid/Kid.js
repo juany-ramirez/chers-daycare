@@ -67,8 +67,6 @@ const Kid = props => {
   };
 
   const actionFormatter = (cell, row, rowIndex) => {
-    console.log(row);
-
     return (
       <div className="action-wrapper">
         <KidModal
@@ -133,7 +131,6 @@ const Kid = props => {
     axios
       .get(`${process.env.REACT_APP_NODE_API}/api/kids`)
       .then(response => {
-        console.log(response.data);
         setState({ ...state, loading: false });
         setKids(response.data.data);
       })

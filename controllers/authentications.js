@@ -53,7 +53,9 @@ updateUser = (req, res, next) => {
     user.password = req.body.password;
     user.phone = req.body.phone;
     user.third_party_notification = req.body.third_party_notification;
-    user.notifications = [...req.body.notifications];
+    user.notifications = req.body.notifications
+      ? [...req.body.notifications]
+      : req.body.notifications;
     user.rol = req.body.rol;
     user
       .save()
@@ -93,7 +95,9 @@ module.exports = {
       password: req.body.password,
       phone: req.body.phone,
       third_party_notification: req.body.third_party_notification,
-      notifications: [...req.body.notifications],
+      notifications: req.body.notifications
+        ? [...req.body.notifications]
+        : req.body.notifications,
       rol: req.body.rol
     });
     let rol_type = await newRol(req.body.rol, user._id);

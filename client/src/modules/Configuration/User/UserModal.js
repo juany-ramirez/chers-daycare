@@ -45,7 +45,9 @@ const UserModal = props => {
       .email("Tiene que ser un correo electrónico")
       .max(255, "El texto es muy largo")
       .required("Correo electrónico requerido"),
-    phone: Yup.string().max(255, "El texto es muy largo"),
+    phone: Yup.string()
+      .max(255, "El texto es muy largo")
+      .required("Teléfono requerido"),
     rol: Yup.number().required("Tipo de usuario requerido")
   });
 

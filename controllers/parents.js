@@ -2,7 +2,7 @@ const Parent = require("../models/Parent");
 
 module.exports = {
   getParents: async (req, res, next) => {
-    Parent.find()
+    Parent.find(req.query)
       .then(parents => {
         res.send({ success: true, data: parents });
       })
@@ -22,9 +22,11 @@ module.exports = {
   createParent: async (req, res, next) => {
     const parent = new Parent({
       user_id: req.body.user_id,
-      kids: [...req.body.kids],
-      notifications: [...req.body.notifications],
-      payments: [...req.body.payments]
+      kids: req.body.kids ? [...req.body.kids] : req.body.kids,
+      notifications: req.body.notifications
+        ? [...req.body.notifications]
+        : req.body.notifications,
+      payments: req.body.payments ? [...req.body.payments] : req.body.payments
     });
     parent
       .save()
@@ -50,9 +52,13 @@ module.exports = {
       {
         $set: {
           user_id: req.body.user_id,
-          kids: [...req.body.kids],
-          notifications: [...req.body.notifications],
-          payments: [...req.body.payments]
+          kids: req.body.kids ? [...req.body.kids] : req.body.kids,
+          notifications: req.body.notifications
+            ? [...req.body.notifications]
+            : req.body.notifications,
+          payments: req.body.payments
+            ? [...req.body.payments]
+            : req.body.payments
         }
       }
     )

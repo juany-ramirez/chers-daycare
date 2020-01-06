@@ -2,7 +2,7 @@ const Administrator = require('../models/Administrator');
 
 module.exports = {
     getAdministrators: async (req, res, next) => {
-        Administrator.find().then((administrators) => {
+        Administrator.find(req.query).then((administrators) => {
             res.send({ success: true, data: administrators });
         }).catch((err) =>
             res.status(422).send({ success: false, error: err.message })

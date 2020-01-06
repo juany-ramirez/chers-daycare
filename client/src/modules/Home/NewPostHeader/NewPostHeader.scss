@@ -29,16 +29,20 @@
       min-height: 58px;
     }
   }
+  .image-cropper{
+    svg{
+      fill: gray;
+      &:hover{
+        cursor: pointer;
+        fill: rgb(95, 95, 95);
+      }
+      &.active {
+        fill: #f2b441;
+      }
+    }
+  }
   button {
     background-color: #f23c3c;
     border: none;
   }
-//   .custom-file {
-//     margin-left: auto;
-//     margin-right: auto;
-//     margin-bottom: 8px;
-//     input {
-//       display: block;
-//     }
-//   }
 }

@@ -1,8 +1,9 @@
 const Post = require("../models/Post");
+const firebaseStorage = require("../firebase/index.js");
 
 module.exports = {
   getPosts: async (req, res, next) => {
-    Post.find()
+    Post.find(req.query)
       .then(posts => {
         res.send({ success: true, data: posts });
       })
@@ -24,10 +25,16 @@ module.exports = {
       album: req.body.album,
       caption: req.body.caption,
       post_date: req.body.post_date,
-      courses: [...req.body.course],
-      text_tags: [...req.body.text_tags],
+      text_tags: req.body.text_tags
+        ? [...req.body.text_tags]
+        : req.body.text_tags,
       title: req.body.title,
-      image: req.body.image
+      image: {
+        link: req.body.image.link,
+        tags: req.body.image.tags
+          ? [...req.body.image.tags]
+          : req.body.image.tags
+      }
     });
     post
       .save()
@@ -55,10 +62,16 @@ module.exports = {
           album: req.body.album,
           caption: req.body.caption,
           post_date: req.body.post_date,
-          courses: [...req.body.course],
-          text_tags: [...req.body.text_tags],
+          text_tags: req.body.text_tags
+            ? [...req.body.text_tags]
+            : req.body.text_tags,
           title: req.body.title,
-          image: req.body.image
+          image: {
+            link: req.body.image.link,
+            tags: req.body.image.tags
+              ? [...req.body.image.tags]
+              : req.body.image.tags
+          }
         }
       }
     )
@@ -131,5 +144,13 @@ module.exports = {
       .catch(err =>
         res.status(404).send({ success: false, error: err.message })
       );
+  },
+  postImage: async (req, res, next) => {
+    const response = await firebaseStorage.saveImage(req.body);
+    if (response.success){
+      res.send(response);
+    }else{
+      res.status(422).send(response);
+    }
   }
 };

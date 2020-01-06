@@ -3,7 +3,7 @@ const Parent = require("../models/Parent");
 
 module.exports = {
   getKids: async (req, res, next) => {
-    Kid.find()
+    Kid.find(req.query)
       .then(kids => {
         res.send({ success: true, data: kids });
       })
@@ -24,11 +24,13 @@ module.exports = {
     const kid = new Kid({
       names: req.body.names,
       last_names: req.body.last_names,
-      profiles: [...req.body.profiles],
-      tags: [...req.body.tags],
+      profiles: req.body.profiles ? [...req.body.profiles] : req.body.profiles,
+      tags: req.body.tags ? [...req.body.tags] : req.body.tags,
       monthly_payment: req.body.monthly_payment,
-      singular_payment: [...req.body.singular_payment],
-      parents: [...req.body.parents]
+      singular_payment: req.body.singular_payment
+        ? [...req.body.singular_payment]
+        : req.body.singular_payment,
+      parents: req.body.parents ? [...req.body.parents] : req.body.parents
     });
     kid
       .save()
@@ -87,11 +89,15 @@ module.exports = {
         $set: {
           names: req.body.names,
           last_names: req.body.last_names,
-          profiles: [...req.body.profiles],
-          tags: [...req.body.tags],
+          profiles: req.body.profiles
+            ? [...req.body.profiles]
+            : req.body.profiles,
+          tags: req.body.tags ? [...req.body.tags] : req.body.tags,
           monthly_payment: req.body.monthly_payment,
-          singular_payment: [...req.body.singular_payment],
-          parents: [...req.body.parents]
+          singular_payment: req.body.singular_payment
+            ? [...req.body.singular_payment]
+            : req.body.singular_payment,
+          parents: req.body.parents ? [...req.body.parents] : req.body.parents
         }
       }
     )
@@ -101,5 +107,5 @@ module.exports = {
       .catch(err =>
         res.status(422).send({ success: false, error: err.message })
       );
-  }
+  },
 };
