@@ -13,7 +13,7 @@
             height: auto;
             width:100vw;
             position: absolute;
-            top:54px;
+            top:50px;
             left:0px;
             .shadow {
                 -webkit-filter: drop-shadow( 0 10px 10px -5px rgba(0, 0, 0, .7));
@@ -32,7 +32,7 @@
     }
     .navbar-brand, .nav-item .nav-link{        
         font-family: 'Montserrat', sans-serif;
-        font-size: 18px;
+        font-size: 14px;
         color: #F2B441;
         &:hover {
             color: #D5E4F2;

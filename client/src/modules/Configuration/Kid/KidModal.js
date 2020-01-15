@@ -133,7 +133,7 @@ const KidModal = props => {
   useEffect(() => {
     getParents();
     if (props.kid.profiles.length > 0) {
-      setAvatar(props.kid.profiles[0]);      
+      setAvatar(props.kid.profiles[0]);
     }
     setState({
       ...state,
@@ -279,8 +279,8 @@ const KidModal = props => {
   const fileRef = useRef();
 
   const handleChangeImage = croppedFile => {
-    if(fileRef.current){
-      setAvatar("")
+    if (fileRef.current) {
+      setAvatar("");
     }
   };
 
@@ -375,9 +375,7 @@ const KidModal = props => {
                   </Form.Text>
                 </Form.Group>
                 <Form.Group controlId="formParents">
-                  <Form.Label as="legend" column sm={3}>
-                    Padre(s):
-                  </Form.Label>
+                  <Form.Label> Padre(s): </Form.Label>
                   <div className="cd-chip-input">
                     {state.selectedParents.map((parent, index) => (
                       <Button
@@ -462,7 +460,7 @@ const KidModal = props => {
                 <Form.Group controlId="formImageCropper">
                   <Form.Label>Perfil: </Form.Label>
                   <br />
-                  {fileRef && avatar.length>0 && (
+                  {fileRef && avatar.length > 0 && (
                     <img height="100" width="100" src={avatar} />
                   )}
                   <div className="image-cropper">

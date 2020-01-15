@@ -29,12 +29,14 @@ module.exports = {
         ? [...req.body.text_tags]
         : req.body.text_tags,
       title: req.body.title,
-      image: {
-        link: req.body.image.link,
-        tags: req.body.image.tags
-          ? [...req.body.image.tags]
-          : req.body.image.tags
-      }
+      image: req.body.image
+        ? {
+            link: req.body.image.link,
+            tags: req.body.image.tags
+              ? [...req.body.image.tags]
+              : req.body.image.tags
+          }
+        : {}
     });
     post
       .save()
@@ -147,9 +149,9 @@ module.exports = {
   },
   postImage: async (req, res, next) => {
     const response = await firebaseStorage.saveImage(req.body);
-    if (response.success){
+    if (response.success) {
       res.send(response);
-    }else{
+    } else {
       res.status(422).send(response);
     }
   }

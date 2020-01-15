@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import DModal from "../../../components/Modals";
 import { PrimaryHeaderLarge, DButton } from "../../../components";
@@ -6,14 +6,20 @@ import { Table, Spinner, Row, Modal, Button } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
+import { PaymentContext } from "../../../contexts/PaymentContext";
+import PaymentModal from "./PaymentModal";
 
 const Payment = props => {
   const [state, setState] = useState({
-    loading: true,
-    payments: []
+    loading: true
   });
   const [smShow, setSmShow] = useState(false);
   const [message, setMessage] = useState("");
+  const [payments, setPayment] = useState([]);
+  const value = useMemo(() => ({ payments, setPayment }), [
+    payments,
+    setPayment
+  ]);
 
   const emptyPayment = {
     names: "",
@@ -34,7 +40,7 @@ const Payment = props => {
       10,
       {
         text: "Todos",
-        value: state.payments.length
+        value: value.payments.length
       }
     ], // A numeric array is also available: [5, 10]. the purpose of above example is custom the text
     withFirstAndLast: false, // hide the going to first and last page button
@@ -51,7 +57,6 @@ const Payment = props => {
       </a>
     );
   };
-
 
   const columns = [
     {
@@ -75,15 +80,11 @@ const Payment = props => {
 
   const getPayments = () => {
     axios
-      .get(`${process.env.REACT_APP_NODE_API}/api/users?rol=3`, {
-        headers: {
-          Authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZDVlZTUzM2FjYzM2ZTNlZmM4NGE2NWMiLCJleHAiOjE1NzE4NzMzMTgxNTcsIm5hbWVzIjoiQ2hlcidzIERheWNhcmUiLCJsYXN0X25hbWVzIjpudWxsLCJlbWFpbCI6ImNoZXJzZGF5Y2FyZS5sZWFybmluZ2NlbnRlckBnbWFpbC5jb20iLCJ0aGlyZF9wYXJ0eV9ub3RpZmljYXRpb24iOm51bGwsIm5vdGlmaWNhdGlvbnMiOltdLCJyb2wiOjEsImlhdCI6MTU3MTc4NjkxOH0.rvfM4GELHQPCu9wRBplglRWXd8CPfC7_DObom1q73d8"
-        }
-      })
+      .get(`${process.env.REACT_APP_NODE_API}/api/users?rol=3`)
       .then(response => {
         console.log(response.data);
-        setState({ ...state, loading: false, payments: response.data.data });
+        setState({ ...state, loading: false});
+        setPayment(response.data.data);
       })
       .catch(err => {
         console.log(err);
@@ -104,56 +105,59 @@ const Payment = props => {
   );
 
   let content = (
-    <div className="text-center">
-      <PrimaryHeaderLarge title="Pagos" />
-      <Button variant="warning">Ingresar nuevo pago</Button>
-      <br />
-      <br />
-
-      <ToolkitProvider
-        keyField="_id"
-        data={state.payments}
-        columns={columns}
-        search
-        bootstrap4
-      >
-        {props => (
-          <div>
-            <SearchBar {...props.searchProps} />
-            <hr />{" "}
-            <BootstrapTable
-              classes="table table-light table-striped table-bordered table-hover"
-              pagination={paginationFactory(paginationOptions)}
-              wrapperClasses="table-responsive"
-              {...props.baseProps}
-            />
-          </div>
-        )}
-      </ToolkitProvider>
-      <br />
-      <Modal
-        size="sm"
-        show={smShow}
-        onHide={() => {
-          setSmShow(false);
-        }}
-        aria-labelledby="example-modal-sizes-title-sm"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="example-modal-sizes-title-sm">{message}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Row className="d-flex justify-content-end">
-            <DButton
-              handleClick={() => {
-                setSmShow(false);
-              }}
-              title="Ok"
-            />
-          </Row>
-        </Modal.Body>
-      </Modal>
-    </div>
+    <PaymentContext.Provider value={value}>
+      <div className="text-center">
+        <PrimaryHeaderLarge title="Pagos" />
+        {/* <PaymentModal type="create" title="Crear nuevo usuario" user={emptyPayment} /> */}
+        <br />
+        <br />
+        <ToolkitProvider
+          keyField="_id"
+          data={value.payments}
+          columns={columns}
+          search
+          bootstrap4
+        >
+          {props => (
+            <div>
+              <SearchBar {...props.searchProps} />
+              <hr />{" "}
+              <BootstrapTable
+                classes="table table-light table-striped table-bordered table-hover"
+                pagination={paginationFactory(paginationOptions)}
+                wrapperClasses="table-responsive"
+                {...props.baseProps}
+              />
+            </div>
+          )}
+        </ToolkitProvider>
+        <br />
+        <Modal
+          size="sm"
+          show={smShow}
+          onHide={() => {
+            setSmShow(false);
+          }}
+          aria-labelledby="example-modal-sizes-title-sm"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="example-modal-sizes-title-sm">
+              {message}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Row className="d-flex justify-content-end">
+              <DButton
+                handleClick={() => {
+                  setSmShow(false);
+                }}
+                title="Ok"
+              />
+            </Row>
+          </Modal.Body>
+        </Modal>
+      </div>
+    </PaymentContext.Provider>
   );
   return state.loading ? loadingContent : content;
 };
