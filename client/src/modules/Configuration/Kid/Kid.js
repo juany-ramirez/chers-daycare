@@ -29,19 +29,19 @@ const Kid = props => {
     last_names: "",
     profiles: [],
     tags: [],
+    charge:0,
+    latest_monthly_charge:"",
+    payed: 0,
+    done: true,
     monthly_payment: {
       first_date: "",
       second_date: "",
       payment: "",
       due_date: "",
-      payed: 0,
-      done: true
     },
     singular_payment_object: {
       first_date: "",
       payment: "",
-      payed: 0,
-      done: true
     },
     singular_payment: [],
     parents: []

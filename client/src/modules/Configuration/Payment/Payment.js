@@ -22,13 +22,8 @@ const Payment = props => {
   ]);
 
   const emptyPayment = {
-    names: "",
-    last_names: "",
-    parent: "",
-    singular_payments: [],
-    monthly_payment: [],
-    tags: [],
-    profiles: []
+    payment: 0,
+    date: ""
   };
 
   const { SearchBar } = Search;
@@ -108,8 +103,6 @@ const Payment = props => {
     <PaymentContext.Provider value={value}>
       <div className="text-center">
         <PrimaryHeaderLarge title="Pagos" />
-        {/* <PaymentModal type="create" title="Crear nuevo usuario" user={emptyPayment} /> */}
-        <br />
         <br />
         <ToolkitProvider
           keyField="_id"

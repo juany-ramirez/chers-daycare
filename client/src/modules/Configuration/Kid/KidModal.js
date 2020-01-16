@@ -29,7 +29,8 @@ import {
 
 const KidModal = props => {
   const [state, setState] = useState({
-    monthlyPayment: false,
+    monthlyPayment:
+      props.type === "edit" && props.kid.monthly_payment ? true : false,
     singularPayment: false,
     loadingParents: true,
     parents: [],
@@ -48,11 +49,11 @@ const KidModal = props => {
     },
     {
       field: "monthly_payment.first_date",
-      value: ""
+      value: false
     },
     {
       field: "monthly_payment.second_date",
-      value: ""
+      value: false
     },
     {
       field: "monthly_payment.payment",
@@ -69,11 +70,11 @@ const KidModal = props => {
       value: {}
     },
     {
-      field: "monthly_payment.first_date",
-      value: ""
+      field: "singular_payment_object.first_date",
+      value: false
     },
     {
-      field: "monthly_payment.payment",
+      field: "singular_payment_object.payment",
       value: ""
     }
   ];
@@ -135,12 +136,6 @@ const KidModal = props => {
     if (props.kid.profiles.length > 0) {
       setAvatar(props.kid.profiles[0]);
     }
-    setState({
-      ...state,
-      monthlyPayment: props.kid.monthly_payment ? false : true,
-      singularPayment: false
-    });
-
     // eslint-disable-next-line
   }, []);
 
@@ -236,7 +231,6 @@ const KidModal = props => {
       .catch(error => {
         setValidation("Ha ocurrido un error");
       });
-    resetForm();
   };
 
   const submitForm = (values, { setSubmitting, resetForm }) => {
@@ -311,16 +305,21 @@ const KidModal = props => {
               last_names: props.kid.last_names,
               profiles: props.kid.profiles,
               tags: props.kid.tags,
-              monthly_payment: !props.kid.monthly_payment
-                ? null
-                : {
-                    first_date: props.kid.monthly_payment.first_date,
-                    second_date: props.kid.monthly_payment.second_date,
-                    payment: props.kid.monthly_payment.payment,
-                    payed: props.kid.monthly_payment.payed,
-                    done: props.kid.monthly_payment.done,
-                    due_date: props.kid.monthly_payment.due_date
-                  },
+              monthly_payment:
+                props.type === "edit" && props.kid.monthly_payment
+                  ? {
+                      first_date: new Date(
+                        props.kid.monthly_payment.first_date
+                      ),
+                      second_date: new Date(
+                        props.kid.monthly_payment.second_date
+                      ),
+                      payment: props.kid.monthly_payment.payment,
+                      payed: props.kid.monthly_payment.payed,
+                      done: props.kid.monthly_payment.done,
+                      due_date: props.kid.monthly_payment.due_date
+                    }
+                  : null,
               singular_payment_object: null,
               singular_payment: props.kid.singular_payment,
               parents: props.kid.parents
@@ -551,6 +550,7 @@ const KidModal = props => {
                                   onChange={date => {
                                     if (
                                       values.monthly_payment.second_date &&
+                                      date &&
                                       values.monthly_payment.second_date.getTime() <
                                         date.getTime()
                                     ) {
@@ -592,6 +592,7 @@ const KidModal = props => {
                                   onChange={date => {
                                     if (
                                       values.monthly_payment.first_date &&
+                                      date &&
                                       values.monthly_payment.first_date.getTime() >
                                         date.getTime()
                                     ) {
@@ -631,9 +632,7 @@ const KidModal = props => {
                                 <Form.Label>Mensualidad: </Form.Label>
                                 <InputGroup>
                                   <InputGroup.Prepend>
-                                    <InputGroup.Text id="inputGroupPrepend">
-                                      Lps.
-                                    </InputGroup.Text>
+                                    <InputGroup.Text>Lps.</InputGroup.Text>
                                   </InputGroup.Prepend>
                                   <Form.Control
                                     type="number"
@@ -696,7 +695,7 @@ const KidModal = props => {
                         {!state.singularPayment && (
                           <CreateRoundButton
                             aria-controls="singular-payment-form"
-                            aria-expanded={state.monthlyPayment}
+                            aria-expanded={state.singularPayment}
                             handleClick={() => {
                               emptySingularPayment.map(element => {
                                 setFieldValue(
@@ -712,7 +711,7 @@ const KidModal = props => {
                         {state.singularPayment && (
                           <DeleteRoundButton
                             aria-controls="singular-payment-form"
-                            aria-expanded={state.monthlyPayment}
+                            aria-expanded={state.singularPayment}
                             handleClick={() => {
                               setState({ ...state, singularPayment: false });
                               setFieldValue(
@@ -745,14 +744,17 @@ const KidModal = props => {
                                 values.singular_payment_object.first_date
                               }
                               onChange={date => {
-                                setFieldTouched(
-                                  "singular_payment_object.first_date",
-                                  true
-                                );
-                                setFieldValue(
-                                  "singular_payment_object.first_date",
-                                  date
-                                );
+                                if (date) {
+                                  setFieldValue(
+                                    "singular_payment_object.first_date",
+                                    date
+                                  );
+                                } else {
+                                  setFieldTouched(
+                                    "singular_payment_object.first_date",
+                                    false
+                                  );
+                                }
                               }}
                               value={values.singular_payment_object.first_date}
                               showTimeSelect
@@ -768,9 +770,7 @@ const KidModal = props => {
                             <Form.Label>Monto: </Form.Label>
                             <InputGroup>
                               <InputGroup.Prepend>
-                                <InputGroup.Text id="inputGroupPrepend">
-                                  Lps.
-                                </InputGroup.Text>
+                                <InputGroup.Text>Lps.</InputGroup.Text>
                               </InputGroup.Prepend>
                               <Form.Control
                                 type="number"
@@ -786,58 +786,58 @@ const KidModal = props => {
                               name="singular_payment_object.payment"
                               className="text-muted"
                             />
-                            <br />
-                            <Button
-                              onClick={() => {
-                                setFieldTouched(
-                                  "singular_payment_object.first_date",
-                                  true
+                          </Form.Group>
+                          <br />
+                          <Button
+                            onClick={() => {
+                              setFieldTouched(
+                                "singular_payment_object.first_date",
+                                true
+                              );
+                              setFieldTouched(
+                                "singular_payment_object.payment",
+                                true
+                              );
+                              if (!errors.singular_payment_object) {
+                                let data = {
+                                  first_date:
+                                    values.singular_payment_object.first_date,
+                                  payment:
+                                    values.singular_payment_object.payment
+                                };
+                                values.singular_payment.push(data);
+                                setFieldValue(
+                                  "singular_payment",
+                                  values.singular_payment
+                                );
+                                setState({
+                                  ...state,
+                                  singularPayment: false
+                                });
+                                setFieldValue(
+                                  "singular_payment_object",
+                                  null,
+                                  false
                                 );
                                 setFieldTouched(
                                   "singular_payment_object.payment",
-                                  true
+                                  false
                                 );
-                                if (!errors.singular_payment_object) {
-                                  let data = {
-                                    first_date:
-                                      values.singular_payment_object.first_date,
-                                    payment:
-                                      values.singular_payment_object.payment
-                                  };
-                                  values.singular_payment.push(data);
-                                  setFieldValue(
-                                    "singular_payment",
-                                    values.singular_payment
-                                  );
-                                  setState({
-                                    ...state,
-                                    singularPayment: false
-                                  });
-                                  setFieldValue(
-                                    "singular_payment_object",
-                                    null,
-                                    false
-                                  );
-                                  setFieldTouched(
-                                    "singular_payment_object.payment",
-                                    false
-                                  );
-                                  setFieldTouched(
-                                    "singular_payment_object.first_date",
-                                    false
-                                  );
-                                }
-                              }}
-                              variant="info"
-                              style={{
-                                backgroundColor: "#d5e4f2",
-                                color: "#4a4972",
-                                border: "none"
-                              }}
-                            >
-                              Agregar Cargo Individual
-                            </Button>
-                          </Form.Group>
+                                setFieldTouched(
+                                  "singular_payment_object.first_date",
+                                  false
+                                );
+                              }
+                            }}
+                            variant="info"
+                            style={{
+                              backgroundColor: "#d5e4f2",
+                              color: "#4a4972",
+                              border: "none"
+                            }}
+                          >
+                            Agregar Cargo Individual
+                          </Button>
                         </Card.Body>
                       )}
                     </div>
@@ -870,13 +870,23 @@ const KidModal = props => {
                                 <td> {singularCharge.payment} Lps. </td>
                                 <td>
                                   {" "}
-                                  {singularCharge.first_date
-                                    .toLocaleDateString("en-GB", {
-                                      day: "numeric",
-                                      month: "short",
-                                      year: "numeric"
-                                    })
-                                    .replace(/ /g, "-")}{" "}
+                                  {typeof singularCharge.first_date ===
+                                    "string" ||
+                                  singularCharge.first_date instanceof String
+                                    ? new Date(
+                                        singularCharge.first_date
+                                      ).toLocaleDateString("en-GB", {
+                                        day: "numeric",
+                                        month: "short",
+                                        year: "numeric"
+                                      })
+                                    : singularCharge.first_date
+                                        .toLocaleDateString("en-GB", {
+                                          day: "numeric",
+                                          month: "short",
+                                          year: "numeric"
+                                        })
+                                        .replace(/ /g, "-")}{" "}
                                 </td>
                                 <td>
                                   <Row className="d-flex justify-content-around">
@@ -908,7 +918,6 @@ const KidModal = props => {
                 <DButton
                   disabled={isSubmitting}
                   title={props.type === "edit" ? "Modificar" : "Ingresar"}
-                  onClick={handleSubmit}
                   type="submit"
                 />
                 <Modal
