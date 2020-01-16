@@ -23,4 +23,6 @@ router
   .route("/:postId/comment/:id")
   .delete(passportJWT, postController.deleteComment);
 
+// router.route("/image").post(passportJWT, postController.postImage);
+
 module.exports = router;

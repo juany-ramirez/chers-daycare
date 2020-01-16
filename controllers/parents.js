@@ -26,7 +26,7 @@ module.exports = {
       notifications: req.body.notifications
         ? [...req.body.notifications]
         : req.body.notifications,
-      payments: req.body.payments ? [...req.body.payments] : req.body.payments
+      payments: req.body.payments ? [...req.body.payments] : []
     });
     parent
       .save()

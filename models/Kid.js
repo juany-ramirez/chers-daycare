@@ -21,6 +21,27 @@ const KidsSchema = mongoose.Schema({
     default: [],
     required: true
   },
+  charge: {
+    type: Number,
+    default: 0,
+    min: 0,
+    required: true
+  },
+  latest_monthly_charge: {
+    type: Date,
+    default: "",
+    required: false
+  },
+  payed: {
+    type: [mongoose.Schema.Types.ObjectId],
+    default: [],
+    required: true
+  },
+  done: {
+    type: Boolean,
+    default: true,
+    required: true
+  },
   monthly_payment: {
     first_date: {
       type: Date,
@@ -44,17 +65,6 @@ const KidsSchema = mongoose.Schema({
       default: 0,
       min: 0,
       required: false
-    },
-    payed: {
-      type: Number,
-      default: 0,
-      min: 0,
-      required: false
-    },
-    done: {
-      type: Boolean,
-      default: false,
-      required: false
     }
   },
   singular_payment: [
@@ -69,16 +79,6 @@ const KidsSchema = mongoose.Schema({
         default: 0,
         min: 0,
         required: false
-      },
-      payed: {
-        type: [mongoose.Schema.Types.ObjectId],
-        default: [],
-        required: false
-      },
-      done: {
-        type: Boolean,
-        default: false,
-        required: false
       }
     }
   ],
@@ -87,6 +87,5 @@ const KidsSchema = mongoose.Schema({
     required: true
   }
 });
-
 
 module.exports = mongoose.model("Kids", KidsSchema);

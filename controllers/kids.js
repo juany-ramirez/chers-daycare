@@ -30,7 +30,11 @@ module.exports = {
       singular_payment: req.body.singular_payment
         ? [...req.body.singular_payment]
         : req.body.singular_payment,
-      parents: req.body.parents ? [...req.body.parents] : req.body.parents
+      parents: req.body.parents ? [...req.body.parents] : req.body.parents,
+      charge: req.body.charge,
+      latest_monthly_charge: req.body.latest_monthly_charge,
+      payed: req.body.payed,
+      done: req.body.done
     });
     kid
       .save()
@@ -97,7 +101,11 @@ module.exports = {
           singular_payment: req.body.singular_payment
             ? [...req.body.singular_payment]
             : req.body.singular_payment,
-          parents: req.body.parents ? [...req.body.parents] : req.body.parents
+          parents: req.body.parents ? [...req.body.parents] : req.body.parents,
+          charge: req.body.charge,
+          latest_monthly_charge: req.body.latest_monthly_charge,
+          payed: req.body.payed,
+          done: req.body.done
         }
       }
     )

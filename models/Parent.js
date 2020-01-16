@@ -26,7 +26,13 @@ const ParentSchema = mongoose.Schema({
             default: 1,
             min: 1,
             required: false
-        }
+        },
+        description: {
+            type: String,
+            default: '',
+            required: false,
+            trim: true
+        },
     }],
 });
 
