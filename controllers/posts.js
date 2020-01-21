@@ -1,5 +1,4 @@
 const Post = require("../models/Post");
-const firebaseStorage = require("../firebase/index.js");
 
 module.exports = {
   getPosts: async (req, res, next) => {
@@ -146,13 +145,5 @@ module.exports = {
       .catch(err =>
         res.status(404).send({ success: false, error: err.message })
       );
-  },
-  postImage: async (req, res, next) => {
-    const response = await firebaseStorage.saveImage(req.body);
-    if (response.success) {
-      res.send(response);
-    } else {
-      res.status(422).send(response);
-    }
   }
 };
