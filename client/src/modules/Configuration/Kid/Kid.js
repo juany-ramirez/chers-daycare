@@ -29,19 +29,19 @@ const Kid = props => {
     last_names: "",
     profiles: [],
     tags: [],
-    charge:0,
-    latest_monthly_charge:"",
+    charge: 0,
+    latest_monthly_charge: "",
     payed: 0,
     done: true,
     monthly_payment: {
       first_date: "",
       second_date: "",
       payment: "",
-      due_date: "",
+      due_date: ""
     },
     singular_payment_object: {
       first_date: "",
-      payment: "",
+      payment: ""
     },
     singular_payment: [],
     parents: []
@@ -74,6 +74,9 @@ const Kid = props => {
           type="edit"
           title="Editar usuario"
           kid={row}
+          getKids={() => {
+            getKids();
+          }}
         />
         <DModal
           index={rowIndex}
@@ -81,7 +84,7 @@ const Kid = props => {
           text="¿Seguro que deseas eliminar este usuario?"
           modalType={2}
           handleAffirmation={() => {
-            deleteKid(row._id);
+            deleteKid(row);
           }}
         />
       </div>
@@ -109,22 +112,32 @@ const Kid = props => {
     }
   ];
 
-  const deleteKid = id => {
-    axios
-      .delete(`${process.env.REACT_APP_NODE_API}/api/kids/${id}`)
-      .then(response => {
-        if (response.data.success) {
-          setMessage("Se ha eliminado el Niño");
-          setSmShow(true);
-          getKids();
-        } else {
-          setMessage("Lo sentimos, ha ocurrido un error :(");
-          setSmShow(true);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
+  const deleteKid = kid => {
+    kid.parents.forEach(async parent => {
+      const parentId = parent.user_type ? parent.user_type : parent;
+      axios
+        .patch(`${process.env.REACT_APP_NODE_API}/api/parents/${parentId}`, {
+          kid_id: kid._id
+        })
+        .then(() => {
+          axios
+            .delete(`${process.env.REACT_APP_NODE_API}/api/kids/${kid._id}`)
+            .then(response => {
+              if (response.data.success) {
+                setMessage("Se ha eliminado el Usuario");
+                setSmShow(true);
+                getKids();
+              } else {
+                setMessage("Lo sentimos, ha ocurrido un error :(");
+                setSmShow(true);
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+        })
+        .catch(error => {});
+    });
   };
 
   const getKids = () => {
@@ -197,7 +210,7 @@ const Kid = props => {
             <Row className="d-flex justify-content-end">
               <DButton
                 handleClick={() => {
-                  deleteModal.current.closeModal();
+                  if (deleteModal.current) deleteModal.current.closeModal();
                   setSmShow(false);
                 }}
                 title="Ok"

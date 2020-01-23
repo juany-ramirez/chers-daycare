@@ -193,7 +193,7 @@ const UserModal = props => {
                 <Form.Group controlId="formPhone">
                   <Form.Label>Teléfono: </Form.Label>
                   <Form.Control
-                    type="text"
+                    type="number"
                     name="phone"
                     onChange={handleChange}
                     onBlur={handleBlur}

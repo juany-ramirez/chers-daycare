@@ -1,0 +1,15 @@
+.round-buttons {
+  display: flex;
+  margin: auto;
+  margin-left: 4px;
+  margin-right: 4px;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+
+  background-color: #d5e4f2;
+  border-color: #d5e4f2;
+  svg {
+    margin: auto;
+  }
+}

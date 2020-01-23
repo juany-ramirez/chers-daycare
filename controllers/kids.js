@@ -39,23 +39,11 @@ module.exports = {
     kid
       .save()
       .then(kid => {
-        Parent.findOne({ _id: req.body.parent })
-          .then(parent => {
-            parent.kids.push(kid._id);
-            parent
-              .save()
-              .catch(err =>
-                res.status(422).send({ success: false, error: err.message })
-              );
-          })
-          .catch(err =>
-            res.status(404).send({ success: false, error: err.message })
-          );
         res.send({ success: true, data: kid });
       })
-      .catch(err =>
-        res.status(422).send({ success: false, error: err.message })
-      );
+      .catch(err => {
+        res.status(422).send({ success: false, error: err.message });
+      });
   },
   deleteKid: async (req, res, next) => {
     Kid.findOne({ _id: req.params.id })
@@ -115,5 +103,5 @@ module.exports = {
       .catch(err =>
         res.status(422).send({ success: false, error: err.message })
       );
-  },
+  }
 };

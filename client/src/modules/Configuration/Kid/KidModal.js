@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { Formik, ErrorMessage } from "formik";
 import DatePicker from "react-datepicker";
 import * as Yup from "yup";
@@ -26,8 +26,10 @@ import {
   DeleteRoundButton,
   CreateRoundButton
 } from "../../../components";
+import { KidContext } from "../../../contexts/KidContext";
 
 const KidModal = props => {
+  const { kids, setKids } = useContext(KidContext);
   const [state, setState] = useState({
     monthlyPayment:
       props.type === "edit" && props.kid.monthly_payment ? true : false,
@@ -41,6 +43,7 @@ const KidModal = props => {
   const [validation, setValidation] = useState("");
   const [message, setMessage] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [newSingular, setNewSingular] = useState([]);
 
   const emptyMonthlyPayment = [
     {
@@ -149,7 +152,7 @@ const KidModal = props => {
         response.data.data.map(parent => {
           isSelected = false;
           props.kid.parents.map(selectedParentId => {
-            if (selectedParentId === parent._id) isSelected = true;
+            if (selectedParentId === parent.user_type) isSelected = true;
           });
           if (isSelected) {
             selectedParents.push(parent);
@@ -174,26 +177,49 @@ const KidModal = props => {
     return values.singular_payment;
   };
 
-  const createKid = (values, { resetForm }, firebaseUrl) => {
+  const createKid = async (values, { resetForm }, firebaseUrl) => {
     if (firebaseUrl.length > 0) {
       values.profiles = [];
       values.profiles.push(firebaseUrl);
     }
     values.monthly_payment = values.monthly_payment
       ? values.monthly_payment
-      : {};
+      : null;
     values.singular_payment = values.singular_payment
       ? values.singular_payment
       : [];
+
+    if (values.singular_payment.length > 0) {
+      let charge = 0;
+      newSingular.forEach(payment => {
+        charge += payment.payment;
+      });
+      values.done = false;
+      values.charge = charge;
+    }
     axios
       .post(`${process.env.REACT_APP_NODE_API}/api/kids`, values)
-      .then(response => {
+      .then(async response => {
         setValidation("");
         if (response.data.success) {
-          setState({ ...state, monthlyPayment: false, singularPayment: false });
-          resetForm();
-          setMessage("Se ha ingresado nuevo niño");
-          setSmShow(true);
+          let resp = await parentRelation(
+            state.selectedParents,
+            response.data.data
+          );
+          if (resp) {
+            setState({
+              ...state,
+              monthlyPayment: false,
+              singularPayment: false
+            });
+            resetForm();
+            setMessage("Se ha ingresado nuevo niño");
+            setSmShow(true);
+
+            let KidList = [...kids];
+            KidList.push(response.data.data);
+            setKids(KidList);
+          }
           // EDITAR EL CONTEXT API DEL NINO
         } else {
           setMessage("Lo sentimos, ha ocurrido un error :(");
@@ -205,12 +231,59 @@ const KidModal = props => {
       });
   };
 
+  const parentRelationUpdate = async kid => {
+    const ogParents = props.kid.parents;
+    let parentRelationUpdate = [];
+    console.log("ogParents", ogParents);
+    state.selectedParents.forEach(parent => {
+      if (ogParents.indexOf(parent.user_type) === -1) {
+        parentRelationUpdate.push(parent.user_type);
+      }
+    });
+    ogParents.forEach(parent => {
+      const result = state.selectedParents.find(
+        ({ user_type }) => user_type === parent
+      );
+      if (!result) {
+        parentRelationUpdate.push(parent);
+      }
+    });
+    parentRelation(parentRelationUpdate, kid);
+  };
+
+  const parentRelation = async (parents, kid) => {
+    parents.forEach(async parent => {
+      const parentId = parent.user_type ? parent.user_type : parent;
+      axios
+        .patch(`${process.env.REACT_APP_NODE_API}/api/parents/${parentId}`, {
+          kid_id: kid._id
+        })
+        .then(response => {
+          if (!response.data.success) {
+            return false;
+          }
+        })
+        .catch(error => {
+          return false;
+        });
+    });
+    return true;
+  };
+
   const modifyKid = (values, { resetForm }, firebaseUrl) => {
+    parentRelationUpdate(props.kid);
     const kid = props.kid;
     kid.names = values.names;
     kid.last_names = values.last_names;
     kid.monthly_payment = values.monthly_payment;
-    kid.singular_payment = values.singular_payment;
+    if (newSingular.length > 0) {
+      let charge = 0;
+      newSingular.forEach(payment => {
+        charge += payment.payment;
+      });
+      kid.done = false;
+      kid.charge += charge;
+    }
     kid.parents = values.parents;
     if (firebaseUrl.length > 0) {
       kid.profiles = [];
@@ -222,6 +295,9 @@ const KidModal = props => {
         if (response.data.success) {
           setMessage("Se ha actualizado el Usuario");
           setSmShow(true);
+          let kidList = [...kids];
+          kidList[props.index] = kid;
+          setKids(kidList);
         } else {
           setMessage("Lo sentimos, ha ocurrido un error :(");
           setSmShow(true);
@@ -391,7 +467,7 @@ const KidModal = props => {
                             const parent = state.selectedParents[index];
                             let valueParents = [...values.parents];
                             valueParents.splice(
-                              valueParents.indexOf(parent._id),
+                              valueParents.indexOf(parent.user_type),
                               1
                             );
                             setFieldValue("parents", valueParents);
@@ -440,7 +516,7 @@ const KidModal = props => {
                               selectedParents: state.selectedParents,
                               parents: state.parents
                             });
-                            valueParents.push(parent._id);
+                            valueParents.push(parent.user_type);
                             setFieldValue("parents", valueParents);
                             setFieldTouched("parents", true);
                           }}
@@ -806,6 +882,8 @@ const KidModal = props => {
                                     values.singular_payment_object.payment
                                 };
                                 values.singular_payment.push(data);
+                                newSingular.push(data);
+                                setNewSingular(newSingular);
                                 setFieldValue(
                                   "singular_payment",
                                   values.singular_payment

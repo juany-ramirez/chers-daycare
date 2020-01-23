@@ -40,5 +40,23 @@ module.exports = {
       .catch(err =>
         res.status(422).send({ success: false, error: err.message })
       );
+  },
+  updateParentsPayment: async (req, res, next) => {
+    Parent.updateOne(
+      { _id: req.params.id },
+      {
+        $set: {
+          payments: req.body.payments
+            ? [...req.body.payments]
+            : req.body.payments
+        }
+      }
+    )
+      .then(parent => {
+        res.send({ success: true, data: parent });
+      })
+      .catch(err =>
+        res.status(422).send({ success: false, error: err.message })
+      );
   }
 };

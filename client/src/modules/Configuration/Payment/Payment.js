@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import DModal from "../../../components/Modals";
-import { PrimaryHeaderLarge, DButton } from "../../../components";
+import {
+  PrimaryHeaderLarge,
+  DButton,
+  CreateRoundButton,
+  WhatsAppRoundButton
+} from "../../../components";
 import { Table, Spinner, Row, Modal, Button } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
 import { PaymentContext } from "../../../contexts/PaymentContext";
 import PaymentModal from "./PaymentModal";
+import "./Payment.scss";
 
 const Payment = props => {
   const [state, setState] = useState({
-    loading: true
+    loading: true,
+    charge: 0
   });
   const [smShow, setSmShow] = useState(false);
   const [message, setMessage] = useState("");
@@ -45,41 +52,82 @@ const Payment = props => {
     nextPageText: "Sig" // the text of next page button
   };
 
-  const linkFormatter = (cell, row, rowIndex) => {
+  const actionFormatter = (cell, row, rowIndex) => {
     return (
-      <a href={cell} target="_blank">
-        See mail
-      </a>
+      <div className="action-wrapper">
+        <PaymentModal
+          index={rowIndex}
+          type="create"
+          title="Generar pago"
+          payment={row}
+        />
+        <Button
+          onClick={() => {
+            const phone = row.user.phone;
+            const messageText = `Cher's Learning Center te recuerda que tienes pendiente un pago [${row.charge} Lps].`;
+            const urlEncodedText = encodeURI(messageText);
+            const url = `https://wa.me/504${phone}?text=${urlEncodedText}`;
+            window.open(url);
+          }}
+          style={{
+            backgroundColor: "#d5e4f2",
+            borderColor: "#d5e4f2"
+          }}
+          className="round-buttons"
+        >
+          <img
+            alt="whatsapp-icon"
+            src={require("../../../assets/icons/whatsapp-icon.svg")}
+            height="24px"
+            width="24px"
+          />
+        </Button>
+      </div>
     );
   };
 
   const columns = [
     {
-      dataField: "names",
-      text: "Nombres",
-      classes: "capitalized-initial",
+      dataField: "user.names",
+      text: "Nombre",
+      classes: "capitalized-initials",
+      formatter: (cell, row) => {
+        return `${row.user.names} ${row.user.last_names}`;
+      },
       sort: true
     },
     {
-      dataField: "last_names",
-      text: "Apellidos",
+      dataField: "kids.done",
+      text: "En mora",
       classes: "capitalized-initial",
+      formatter: (cell, row) => {
+        let done = true;
+        row.kids.forEach(kid => {
+          if (!kid.done) done = false;
+        });
+        return done === true ? "No" : "Si";
+      },
+      sort: true
+    },
+    {
+      dataField: "charge",
+      text: "Deuda",
       sort: true
     },
     {
       dataField: "link",
-      text: "Link",
-      formatter: linkFormatter
+      text: "Acción",
+      classes: "table-action",
+      formatter: actionFormatter
     }
   ];
 
   const getPayments = () => {
     axios
-      .get(`${process.env.REACT_APP_NODE_API}/api/users?rol=3`)
+      .get(`${process.env.REACT_APP_NODE_API}/api/payment`)
       .then(response => {
-        console.log(response.data);
-        setState({ ...state, loading: false});
         setPayment(response.data.data);
+        setState({ ...state, loading: false });
       })
       .catch(err => {
         console.log(err);
@@ -106,7 +154,7 @@ const Payment = props => {
         <br />
         <ToolkitProvider
           keyField="_id"
-          data={value.payments}
+          data={payments}
           columns={columns}
           search
           bootstrap4

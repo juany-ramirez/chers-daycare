@@ -68,5 +68,27 @@ module.exports = {
       .catch(err =>
         res.status(422).send({ success: false, error: err.message })
       );
+  },
+  kidControl: async (req, res, next) => {
+    Parent.findOne({ _id: req.params.id })
+      .then(parent => {
+        let kidIndex = parent.kids.indexOf(req.body.kid_id);
+        if (kidIndex != -1) {
+          parent.kids.splice(kidIndex, 1);
+        } else {
+          parent.kids.push(req.body.kid_id);
+        }
+        parent
+          .save()
+          .then(newParent => {
+            res.send({ success: true, data: newParent });
+          })
+          .catch(err =>
+            res.status(422).send({ success: false, error: err.message })
+          );
+      })
+      .catch(err =>
+        res.status(422).send({ success: false, error: err.message })
+      );
   }
 };

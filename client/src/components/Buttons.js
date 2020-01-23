@@ -88,8 +88,8 @@ export const DeleteRoundButton = props => (
 export const EditRoundButton = props => (
   <Styles>
     <Button
-      onClick={() => {
-        props.handleClick();
+      onClick={(value) => {
+        props.handleClick(value);
       }}
       className="round-buttons"
       style={{
@@ -135,6 +135,30 @@ export const CreateRoundButton = props => (
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
         <path d="M0 0h24v24H0z" fill="none" />
       </svg>
+    </Button>
+  </Styles>
+);
+
+export const WhatsAppRoundButton = props => (
+  <Styles>
+    <Button
+      onClick={(values) => {
+        props.handleClick(values);
+      }}
+      className="round-buttons"
+      style={{
+        backgroundColor: "#d5e4f2",
+        borderColor: "#d5e4f2"
+      }}
+      variant="primary"
+    >
+      <img
+        className="logo-chers-daycare"
+        alt="plane-lines"
+        src={require("../assets/icons/whatsapp-icon.svg")}
+        height="24px"
+        width="24px"
+      />
     </Button>
   </Styles>
 );
