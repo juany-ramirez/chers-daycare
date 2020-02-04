@@ -16,6 +16,8 @@ import * as Yup from "yup";
 import { PrimaryHeaderMedium } from "../../../components/Headers";
 import { storage } from "../../../firebase";
 import { HiddenCropper } from "react-bootstrap-image-cropper";
+import * as notification from "../../../utils/notifications";
+import Auth from "../../../utils/auth";
 import "./NewPostHeader.scss";
 
 const NewPostHeader = props => {
@@ -96,28 +98,58 @@ const NewPostHeader = props => {
         image: { link: imageUrl, tags: [...tags] },
         caption: request.text
       };
-      console.log("node api post data request = ", data);
     } else {
       data = {
         text_tags: [...tags],
         caption: request.text
       };
-      console.log("node api post data request = ", data);
     }
     axios
       .post(`${process.env.REACT_APP_NODE_API}/api/posts`, data)
       .then(response => {
         if (response.data.success) {
           props.handlePost();
+          tagKids(tags, response.data.data._id)
           setRequest({});
           setImage({});
           setTagModal({ show: false, loadingButton: false });
           setFaceIdImage(defaultImage);
+          createNotificationList(response.data.data);
         } else {
           setValidation("Lo sentimos, ha ocurrido un error :(");
         }
       })
       .catch(error => setValidation("Lo sentimos, ha ocurrido un error :("));
+  };
+
+  const createNotificationList = (post) => {
+    console.log("post",post);
+    
+    let user_data = Auth.decodeJWT();
+    const message = "Estás etiquetado en una nueva publicación.";
+    const notificationData = {
+      text: message,
+      link: post._id,
+      type: 1,
+      id_user: user_data.sub
+    };
+    const tags =
+      post.text_tags.length > 0
+        ? [...post.text_tags]
+        : [...post.image.tags];
+    notification.newParentNotification(notificationData, tags);
+  };
+
+  const tagKids = async (kids, postId) => {
+    kids.forEach(async kid => {
+      axios
+        .patch(`${process.env.REACT_APP_NODE_API}/api/kids/${kid}`, {
+          post_id: postId
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    });
   };
 
   const getKids = () => {
@@ -145,9 +177,9 @@ const NewPostHeader = props => {
         let kids = [],
           identifiedKids = [];
         let isSelected;
-        response.data.data.map(kid => {
+        response.data.data.forEach(kid => {
           isSelected = false;
-          faceRecData.data.map(faceRecKid => {
+          faceRecData.data.forEach(faceRecKid => {
             if (faceRecKid._id === kid._id) isSelected = true;
           });
           if (isSelected) {
@@ -185,7 +217,7 @@ const NewPostHeader = props => {
     axios
       .get(`${process.env.REACT_APP_NODE_API}/api/kids`)
       .then(response => {
-        response.data.data.map(element => {
+        response.data.data.forEach(element => {
           if (element.profiles.length) {
             profileData.push({
               _id: element._id,
@@ -241,8 +273,7 @@ const NewPostHeader = props => {
             handleBlur,
             handleSubmit,
             isSubmitting,
-            setFieldValue,
-            setFieldError
+            setFieldValue
           }) => (
             <Form onSubmit={handleSubmit}>
               <Row>

@@ -1,6 +1,34 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const NotificationSchema = mongoose.Schema({
+    text: {
+        type: String,
+        required: true
+    },
+    opened:  {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    type: {
+        type: Number,
+        default: 1,
+        min: 0,
+        required: true
+    },
+    date:  {
+        type: Date,
+        default: Date.now,
+        required: true
+    },
+    link: {
+        type: String,
+        default: "",
+        required: false
+    },
+});
+
 const UserSchema = mongoose.Schema({
     avatar: {
         type: String,
@@ -44,7 +72,7 @@ const UserSchema = mongoose.Schema({
         required: false
     },
     notifications: {
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [NotificationSchema],
         default: [],
         required: true
     },
@@ -70,7 +98,8 @@ UserSchema.pre('save', async function(next) {
     try {
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(this.password, salt);
-        this.password = passwordHash;
+        if(this.isModified('password'))
+            this.password = passwordHash;
         next();
     } catch (error) {
         next(error);

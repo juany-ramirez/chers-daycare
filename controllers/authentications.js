@@ -35,6 +35,7 @@ signToken = user => {
       exp: new Date().setDate(new Date().getDate() + 1),
       names: user.names,
       last_names: user.last_names,
+      user_type: user.user_type,
       email: user.email,
       third_party_notification: user.third_party_notification,
       notifications: user.notifications,
@@ -50,7 +51,6 @@ updateUser = (req, res, next) => {
     user.names = req.body.names;
     user.last_names = req.body.last_names;
     user.email = req.body.email;
-    user.password = req.body.password;
     user.phone = req.body.phone;
     user.third_party_notification = req.body.third_party_notification;
     user.notifications = req.body.notifications

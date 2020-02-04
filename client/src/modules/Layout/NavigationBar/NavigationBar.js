@@ -1,9 +1,36 @@
-import React, { useEffect, useState } from "react";
-import { Nav, Navbar } from "react-bootstrap";
-import Auth from "../../../auth";
+import React, { useEffect, useState, useMemo } from "react";
+import {
+  Nav,
+  Navbar,
+  OverlayTrigger,
+  Popover,
+  Row,
+  Col
+} from "react-bootstrap";
+import Auth from "../../../utils/auth";
+import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import axios from "axios";
+import localization from "moment/locale/es";
+import moment from "moment";
 import "./NavigationBar.scss";
 
 const NavigationBar = props => {
+  const [auth, setAuth] = useState({
+    authenticaded: false,
+    rol: null,
+    id: "",
+    names: "",
+    last_names: ""
+  });
+
+  const [user, setUser] = useState({});
+
+  const [notification, setNotification] = useState({
+    open: 0,
+    src: "notification-active"
+  });
+
+  const value = useMemo(() => ({ auth, setAuth }), [auth, setAuth]);
   const pushLogin = () => {
     setAuthenticated(false);
     setMenuItems(publicMenuItems);
@@ -21,6 +48,17 @@ const NavigationBar = props => {
     }
   ];
 
+  const parentMenuItems = [
+    {
+      name: "Sobre Nosotros",
+      href: "/"
+    },
+    {
+      name: "Inicio",
+      href: "/home"
+    }
+  ];
+
   const adminMenuItems = [
     {
       name: "Inicio",
@@ -32,62 +70,178 @@ const NavigationBar = props => {
     }
   ];
 
-  const firebaseMenuItems = [
-    {
-      name: "Sobre Nosotros",
-      href: "/"
-    }
-  ];
-
   const [loading, setLoading] = useState(true);
   const [menuItems, setMenuItems] = useState([]);
   const [isAuthenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    if (Auth.isAuthenticated()) {
-      setMenuItems(adminMenuItems);
-      setAuthenticated(true);
+    let jwt = Auth.decodeJWT();
+    if (jwt)
+      setAuth({
+        ...auth,
+        authenticaded: true,
+        rol: jwt.rol,
+        id: jwt.sub,
+        names: jwt.names,
+        last_names: jwt.sub
+      });
+    if (jwt) {
+      getUser(jwt.sub);
+      if (jwt.rol === 3) {
+        setMenuItems(parentMenuItems);
+        setAuthenticated(true);
+      } else {
+        setMenuItems(adminMenuItems);
+        setAuthenticated(true);
+      }
     } else {
       setMenuItems(publicMenuItems);
       setAuthenticated(false);
     }
     setLoading(false);
-  }, Auth.isAuthenticated);
+  }, []);
+
+  const getUser = userId => {
+    axios
+      .get(`${process.env.REACT_APP_NODE_API}/api/users/${userId}`)
+      .then(response => {
+        let opened = true;
+        response.data.data.notifications.sort((a, b) => {
+          return new Date(b.date) - new Date(a.date);
+        });
+        setUser(response.data.data);
+        response.data.data.notifications.forEach(notification => {
+          if (!notification.opened) opened = false;
+        });
+        setNotification({
+          ...notification,
+          src:
+            opened === false ? "notification-inactive" : "notification-active"
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  const seenNotifications = userId => {
+    const notifications = user.notifications.map(notification => {
+      return { ...notification, opened: true };
+    });
+    user.notifications = [...notifications];
+    axios
+      .put(`${process.env.REACT_APP_NODE_API}/api/auth/users/${user._id}`, user)
+      .then(response => {
+        setNotification({
+          ...notification,
+          src: "notification-active"
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
   let content = (
     <div className="styles-navigation-bar">
-      <img
-        className="logo-chers-daycare"
-        alt="plane-lines"
-        href="/"
-        src={require("../../../assets/chers-daycare-logo.svg")}
-      />
-      <Navbar fixed="top" expand="lg">
-        <Navbar.Brand></Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ml-auto navbar-control">
-            {menuItems.map((item, index) => (
-              <Nav.Item className="text-right" key={index}>
-                <Nav.Link href={item.href}>{item.name}</Nav.Link>
-              </Nav.Item>
-            ))}
+      <AuthenticationContext.Provider value={value}>
+        <img
+          className="logo-chers-daycare"
+          alt="plane-lines"
+          href="/"
+          src={require("../../../assets/chers-daycare-logo.svg")}
+        />
+        <Navbar fixed="top" className="justify-content-end" expand="lg">
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Row>
             {isAuthenticated && (
-              <Nav.Item className="text-right">
-                <Nav.Link
-                  onClick={() => {
-                    Auth.logout(() => {
-                      pushLogin();
-                    });
-                  }}
-                >
-                  Cerrar Sesión
+              <Nav.Item className="ml-auto">
+                <Nav.Link>
+                  <OverlayTrigger
+                    trigger="click"
+                    key="bottom"
+                    placement="bottom"
+                    overlay={
+                      <Popover id={`popover-positioned-bottom`}>
+                        <Popover.Title as="h3">{`Notificaciones`}</Popover.Title>
+                        {user.notifications && (
+                          <Popover.Content
+                            style={{ maxHeight: 400 + "px", overflowY: "auto" }}
+                          >
+                            {user.notifications.length === 0 && (
+                              <strong>
+                                No tienes ninguna notificación pendiente
+                              </strong>
+                            )}
+                            {user.notifications.map(notification => (
+                              <span key={notification._id}>
+                                {!notification.opened && (
+                                  <strong>{notification.text}</strong>
+                                )}
+                                {notification.opened && (
+                                  <span>{notification.text}</span>
+                                )}
+
+                                <p style={{ fontSize: 12 + "px" }}>
+                                  {moment(notification.date)
+                                    .locale("es", localization)
+                                    .fromNow()}
+                                </p>
+                                <hr></hr>
+                              </span>
+                            ))}
+                          </Popover.Content>
+                        )}
+                      </Popover>
+                    }
+                  >
+                    <img
+                      className="notification-bell"
+                      alt="notification-bell"
+                      height="20"
+                      onClick={() => {
+                        if (
+                          notification.src === "notification-inactive" &&
+                          notification.open % 2 === 1
+                        ) {
+                          seenNotifications();
+                        }
+                        setNotification({
+                          ...notification,
+                          open: notification.open + 1
+                        });
+                      }}
+                      src={require(`../../../assets/icons/${notification.src}.svg`)}
+                    />
+                  </OverlayTrigger>
                 </Nav.Link>
               </Nav.Item>
             )}
-          </Nav>
-        </Navbar.Collapse>
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="navbar-control">
+                {menuItems.map((item, index) => (
+                  <Nav.Item className="text-right" key={index}>
+                    <Nav.Link href={item.href}>{item.name}</Nav.Link>
+                  </Nav.Item>
+                ))}
+                {isAuthenticated && (
+                  <Nav.Item className="text-right">
+                    <Nav.Link
+                      onClick={() => {
+                        Auth.logout(() => {
+                          pushLogin();
+                        });
+                      }}
+                    >
+                      Cerrar Sesión
+                    </Nav.Link>
+                  </Nav.Item>
+                )}
+              </Nav>
+            </Navbar.Collapse>
+          </Row>
+
           <svg
             viewBox="0 0 1253 27"
             fill="none"
@@ -100,10 +254,11 @@ const NavigationBar = props => {
               fill="#4A4972"
             />
           </svg>
-      </Navbar>
+        </Navbar>
+      </AuthenticationContext.Provider>
     </div>
   );
-  return loading ? '' : content;
+  return loading ? "" : content;
 };
 
 export default NavigationBar;

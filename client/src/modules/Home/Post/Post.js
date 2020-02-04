@@ -20,10 +20,11 @@ import {
 } from "react-bootstrap";
 import { PrimaryHeaderSmall, TextXS } from "../../../components";
 import Comment from "./Comment/Comment";
-import Auth from "../../../auth";
 import { DButton } from "../../../components";
 import { PostContext } from "../../../contexts/PostContext";
 import "./Post.scss";
+import * as notification from "../../../utils/notifications";
+import Auth from "../../../utils/auth";
 
 const Post = props => {
   const { posts, setPosts } = useContext(PostContext);
@@ -59,7 +60,7 @@ const Post = props => {
 
   const getCommenters = () => {
     let commentList = [];
-    props.post.comments.map((data, index) => {
+    props.post.comments.forEach((data, index) => {
       if (data.commenter) {
         const idPerson = data.commenter;
         axios
@@ -73,7 +74,6 @@ const Post = props => {
               _id: data._id
             };
             commentList.push(comment);
-
             if (index + 1 === props.post.comments.length)
               setComments(commentList);
           })
@@ -91,6 +91,20 @@ const Post = props => {
 
   const deletePost = () => {
     setLoadingModal(true);
+    const postId = props.post._id;
+    const taggedKids =
+      props.post.image.link.length > 0
+        ? props.post.image.tags
+        : props.post.text_tags;
+    taggedKids.forEach(async kid => {
+      axios
+        .patch(`${process.env.REACT_APP_NODE_API}/api/kids/${kid}`, {
+          post_id: postId
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    });
     axios
       .delete(`${process.env.REACT_APP_NODE_API}/api/posts/${props.post._id}`)
       .then(response => {
@@ -118,6 +132,8 @@ const Post = props => {
       .then(response => {
         if (response.data.success) {
           resetForm();
+          const message = `ha comentado una publicación en la que estás etiquetado.`;
+          createNotificationList(message);
           const commentList = response.data.data.comments;
           const lastComment = commentList.length - 1;
           const comment = {
@@ -146,7 +162,7 @@ const Post = props => {
 
   const deleteComment = id => {
     let commentList = comments.filter(comment => {
-      return comment._id != id;
+      return comment._id !== id;
     });
     setComments(commentList);
   };
@@ -159,7 +175,27 @@ const Post = props => {
     }
   };
 
+  const createNotificationList = message => {
+    let user_data = Auth.decodeJWT();
+    const notificationData = {
+      text: `${user_data.names} ${user_data.last_names} ${message}`,
+      link: props.post._id,
+      type: 2,
+      id_user: user_data.sub
+    };
+    const tags =
+      props.post.text_tags.length > 0
+        ? [...props.post.text_tags]
+        : [...props.post.image.tags];
+    notification.newParentNotification(notificationData, tags);
+    notification.notificationForAdmins(notificationData, tags);
+  };
+
   const onLike = () => {
+    if (!isLiked()) {
+      const message = `le ha dado like a una publicación en la que estás etiquetado.`;
+      createNotificationList(message);
+    }
     setState({ ...state, liked: !state.liked });
     const data = {
       _id: Auth.decodeJWT().sub

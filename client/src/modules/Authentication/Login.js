@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import { DButton, PrimaryHeaderLarge } from "../../components";
-import Auth from "../../auth";
+import Auth from "../../utils/auth";
 import "./Authentication.scss";
 
 const Login = props => {
@@ -22,13 +22,10 @@ const Login = props => {
 
   const submitForm = (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
-    console.log(values);
     axios
       .post(`${process.env.REACT_APP_NODE_API}/api/auth/signin`, values)
       .then(response => {
-        console.log("Success:", response.data);
         Auth.login(response.data.token);
-        console.log(Auth.decodeJWT());
         resetForm();
         setValidation("");
         props.history.push("/home");

@@ -7,6 +7,10 @@
         width: 10rem;
         height: auto;
     }
+    .notification-content{
+        max-height: 250px;
+        overflow-y: auto;
+    }
     .navbar {
         background-color: #4A4972;
         svg {

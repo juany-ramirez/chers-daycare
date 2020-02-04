@@ -65,5 +65,51 @@ module.exports = {
       .catch(err => {
         res.status(422).send({ success: false, error: err.message });
       });
+  },
+  createNotification: async (req, res, next) => {
+    let query = { _id: req.params.userId };
+    if (req.query.rol === "3") {
+      query = { user_type: req.params.userId };
+    }
+
+    if (req.body.id_user === req.params.userId) {
+      res.send({ success: true, data: {} });
+    } else {
+      const notification = {
+        text: req.body.text,
+        opened: req.body.opened,
+        type: req.body.type,
+        date: req.body.date,
+        link: req.body.link
+      };
+      User.updateOne(
+        query,
+        { $addToSet: { notifications: notification } },
+        function(error, success) {
+          if (error) {
+            res.status(404).send({ success: false, error: err.message });
+          } else {
+            res.send({ success: true, data: success });
+          }
+        }
+      ).catch(err =>
+        res.status(404).send({ success: false, error: err.message })
+      );
+    }
+  },
+  updateNotification: async (req, res, next) => {
+    User.updateOne(
+      { _id: req.params.userId, "notifications._id": req.params.id },
+      { $set: { "notifications.$.opened" : true } },
+      function(error, success) {
+        if (error) {
+          res.status(404).send({ success: false, error: err.message });
+        } else {
+          res.send({ success: true, data: success });
+        }
+      }
+    ).catch(err =>
+      res.status(404).send({ success: false, error: err.message })
+    );
   }
 };

@@ -9,6 +9,8 @@ router.route("/").get(passportJWT, postController.getPosts);
 
 router.route("/:id").get(passportJWT, postController.getPost);
 
+router.route("/").patch(passportJWT, postController.getParentsPosts);
+
 router.route("/").post(passportJWT, postController.createPost);
 
 router.route("/:id").delete(passportJWT, postController.deletePost);

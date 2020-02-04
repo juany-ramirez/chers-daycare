@@ -3,7 +3,7 @@ import axios from "axios";
 import DModal from "../../../components/Modals";
 import KidModal from "./KidModal";
 import { PrimaryHeaderLarge, DButton } from "../../../components";
-import { Table, Spinner, Row, Modal, Button } from "react-bootstrap";
+import { Spinner, Row, Modal } from "react-bootstrap";
 import { KidContext } from "../../../contexts/KidContext";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
@@ -113,31 +113,32 @@ const Kid = props => {
   ];
 
   const deleteKid = kid => {
-    kid.parents.forEach(async parent => {
-      const parentId = parent.user_type ? parent.user_type : parent;
+    const kidsParents = kid.parents;
+    const kidId = kid._id;
+    kidsParents.forEach(async parent => {
       axios
-        .patch(`${process.env.REACT_APP_NODE_API}/api/parents/${parentId}`, {
-          kid_id: kid._id
+        .patch(`${process.env.REACT_APP_NODE_API}/api/parents/${parent}`, {
+          kid_id: kidId
         })
-        .then(() => {
-          axios
-            .delete(`${process.env.REACT_APP_NODE_API}/api/kids/${kid._id}`)
-            .then(response => {
-              if (response.data.success) {
-                setMessage("Se ha eliminado el Usuario");
-                setSmShow(true);
-                getKids();
-              } else {
-                setMessage("Lo sentimos, ha ocurrido un error :(");
-                setSmShow(true);
-              }
-            })
-            .catch(err => {
-              console.log(err);
-            });
-        })
-        .catch(error => {});
+        .catch(error => {
+          console.log(error);
+        });
     });
+    axios
+      .delete(`${process.env.REACT_APP_NODE_API}/api/kids/${kid._id}`)
+      .then(response => {
+        if (response.data.success) {
+          setMessage("Se ha eliminado el Usuario");
+          setSmShow(true);
+          getKids();
+        } else {
+          setMessage("Lo sentimos, ha ocurrido un error :(");
+          setSmShow(true);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   const getKids = () => {

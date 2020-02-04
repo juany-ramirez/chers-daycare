@@ -75,7 +75,6 @@ const UserModal = props => {
 
   const modifyUser = values => {
     const user = props.user;
-    console.log(user);
     user.names = values.names;
     user.last_names = values.last_names;
     user.email = values.email;
@@ -84,7 +83,6 @@ const UserModal = props => {
     axios
       .put(`${process.env.REACT_APP_NODE_API}/api/auth/users/${user._id}`, user)
       .then(response => {
-        console.log(response);
         if (response.data.success) {
           let userList = [...users];
           userList[props.index] = response.data.data;

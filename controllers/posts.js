@@ -1,14 +1,106 @@
 const Post = require("../models/Post");
+const Kid = require("../models/Kid");
+const mongoose = require("mongoose");
 
 module.exports = {
   getPosts: async (req, res, next) => {
-    Post.find(req.query)
-      .then(posts => {
-        res.send({ success: true, data: posts });
-      })
-      .catch(err =>
-        res.status(422).send({ success: false, error: err.message })
-      );
+    if (req.body.rol === 3) {
+      Kid.aggregate([
+        {
+          $match: {
+            _id: {
+              $in: req.body.kid_ids.map(function(id) {
+                return mongoose.Types.ObjectId(id);
+              })
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: "posts",
+            localField: "tags",
+            foreignField: "_id",
+            as: "tags"
+          }
+        },
+        {
+          $unwind: {
+            path: "$tags"
+          }
+        },
+        {
+          $sort: {
+            "tags.release_date": -1
+          }
+        },
+        {
+          $project: {
+            posts: "$tags"
+          }
+        }
+      ])
+        .then(parents => {
+          res.send({ success: true, data: parents });
+        })
+        .catch(err =>
+          res.status(422).send({ success: false, error: err.message })
+        );
+    } else {
+      Post.find(req.query)
+        .sort({ release_date: -1 })
+        .then(posts => {
+          res.send({ success: true, data: posts });
+        })
+        .catch(err =>
+          res.status(422).send({ success: false, error: err.message })
+        );
+    }
+  },
+  getParentsPosts: async (req, res, next) => {
+    if (req.body.rol === 3) {
+      Kid.aggregate([
+        {
+          $match: {
+            _id: {
+              $in: req.body.kid_ids.map(function(id) {
+                return mongoose.Types.ObjectId(id);
+              })
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: "posts",
+            localField: "tags",
+            foreignField: "_id",
+            as: "tags"
+          }
+        },
+        {
+          $unwind: {
+            path: "$tags"
+          }
+        },
+        {
+          $sort: {
+            "tags.release_date": -1
+          }
+        },
+        {
+          $project: {
+            post: "$tags"
+          }
+        }
+      ])
+        .then(parents => {
+          res.send({ success: true, data: parents });
+        })
+        .catch(err =>
+          res.status(422).send({ success: false, error: err.message })
+        );
+    }else {
+      res.status(422).send({ success: false, error: err.message })
+    }
   },
   getPost: async (req, res, next) => {
     Post.findById(req.params.id)

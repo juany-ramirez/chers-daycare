@@ -149,9 +149,9 @@ const KidModal = props => {
         let parents = [],
           selectedParents = [];
         let isSelected;
-        response.data.data.map(parent => {
+        response.data.data.forEach(parent => {
           isSelected = false;
-          props.kid.parents.map(selectedParentId => {
+          props.kid.parents.forEach(selectedParentId => {
             if (selectedParentId === parent.user_type) isSelected = true;
           });
           if (isSelected) {
@@ -234,7 +234,6 @@ const KidModal = props => {
   const parentRelationUpdate = async kid => {
     const ogParents = props.kid.parents;
     let parentRelationUpdate = [];
-    console.log("ogParents", ogParents);
     state.selectedParents.forEach(parent => {
       if (ogParents.indexOf(parent.user_type) === -1) {
         parentRelationUpdate.push(parent.user_type);
@@ -536,7 +535,7 @@ const KidModal = props => {
                   <Form.Label>Perfil: </Form.Label>
                   <br />
                   {fileRef && avatar.length > 0 && (
-                    <img height="100" width="100" src={avatar} />
+                    <img alt="kid-avatar" height="100" width="100" src={avatar} />
                   )}
                   <div className="image-cropper">
                     <ImageCropper
@@ -581,7 +580,7 @@ const KidModal = props => {
                             aria-controls="monthly-form"
                             aria-expanded={state.monthlyPayment}
                             handleClick={() => {
-                              emptyMonthlyPayment.map(element => {
+                              emptyMonthlyPayment.forEach(element => {
                                 setFieldValue(
                                   element.field,
                                   element.value,
@@ -773,7 +772,7 @@ const KidModal = props => {
                             aria-controls="singular-payment-form"
                             aria-expanded={state.singularPayment}
                             handleClick={() => {
-                              emptySingularPayment.map(element => {
+                              emptySingularPayment.forEach(element => {
                                 setFieldValue(
                                   element.field,
                                   element.value,

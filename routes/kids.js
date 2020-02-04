@@ -15,4 +15,7 @@ router.route("/:id").delete(passportJWT, kidController.deleteKid);
 
 router.route("/:id").put(passportJWT, kidController.updateKid);
 
+router.route("/:id").patch(passportJWT, kidController.postControl);
+
+router.route("/").patch(passportJWT, kidController.getKidsParents);
 module.exports = router;

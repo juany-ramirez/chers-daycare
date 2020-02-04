@@ -3,7 +3,7 @@ import axios from "axios";
 import DModal from "../../../components/Modals";
 import UserModal from "./UserModal";
 import { PrimaryHeaderLarge, DButton } from "../../../components";
-import { Table, Spinner, Row, Modal } from "react-bootstrap";
+import { Spinner, Row, Modal } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";

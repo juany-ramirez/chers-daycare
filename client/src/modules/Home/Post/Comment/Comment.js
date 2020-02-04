@@ -3,7 +3,7 @@ import { Col, Row, Modal, DropdownButton, Dropdown } from "react-bootstrap";
 import axios from "axios";
 import moment from "moment";
 import localization from "moment/locale/es";
-import Auth from "../../../../auth";
+import Auth from "../../../../utils/auth";
 import { DButton } from "../../../../components";
 import { TextSmall, TextXS } from "../../../../components";
 
