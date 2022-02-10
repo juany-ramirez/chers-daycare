@@ -9,7 +9,7 @@
     "history": "^4.10.1",
     "jwt-decode": "^2.2.0",
     "moment": "^2.24.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "react": "^16.8.6",
     "react-bootstrap": "^1.0.0-beta.10",
     "react-bootstrap-image-cropper": "^0.3.0",
